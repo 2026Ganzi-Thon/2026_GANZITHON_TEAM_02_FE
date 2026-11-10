@@ -1,60 +1,112 @@
-* {
-  box-sizing: border-box;
-}
+@import "tailwindcss";
 
-html,
-body,
-#root {
-  margin: 0;
-  min-height: 100%;
-  width: 100%;
-}
+/* 디자인 토큰 — Figma [2026 간지톤] 2팀 Variables 기준 (docs/DESIGN_GUIDE.md) */
+@theme {
+  --color-primary: #cc3f31;
+  --color-primary-pressed: #b83b30;
+  --color-primary-soft: #fbe9e5;
+  --color-background: #fffbf5;
+  --color-surface: #ffffff;
+  --color-surface-warm: #f3e8d8;
+  --color-border: #e6dcd1;
+  --color-text-main: #332c29;
+  --color-text-sub: #75665e;
 
-body {
-  min-width: 320px;
-  min-height: 100dvh;
-  background-color: #e8eaed;
-  font-family: Pretendard, -apple-system,
-    BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
-}
+  --font-sans: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
-button,
-input,
-textarea,
-select {
-  font: inherit;
-}
+  /* 상단 라벨 */
+  --text-label: 14px;
+  --text-label--line-height: 21px;
+  --text-label--letter-spacing: 0.2em;
+  --text-label--font-weight: 700;
+  /* 페이지 타이틀 제목 */
+  --text-title: 20px;
+  --text-title--line-height: 28px;
+  --text-title--font-weight: 600;
+  /* 영역 제목 */
+  --text-section: 16px;
+  --text-section--line-height: 28px;
+  --text-section--font-weight: 600;
+  /* 버튼 제목 */
+  --text-button: 16px;
+  --text-button--line-height: 24px;
+  --text-button--font-weight: 600;
+  /* 설명 */
+  --text-caption: 12px;
+  --text-caption--line-height: 22px;
+  /* 하단 내비 라벨 */
+  --text-tab: 10px;
+  --text-tab--line-height: 22px;
 
-button {
-  cursor: pointer;
+  --radius-button: 10px;
+  --radius-card: 12px;
+  --radius-chip: 20px;
 }
+/*
+ * 전역 스타일은 base 레이어에 둔다.
+ * (레이어 밖에 두면 Tailwind 유틸리티보다 우선순위가 높아져 text-* 등이 무시됨)
+ */
+@layer base {
 
-/* PC에서 모바일 앱 중앙 정렬 */
-#root {
-  min-height: 100dvh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* 모바일 앱 컨테이너 */
-.mobile-container {
-  width: 100%;
-  max-width: 430px;
-  min-height: 100dvh;
-  background-color: #ffffff;
-  position: relative;
-  overflow-x: clip;
-}
-
-/* 모바일 기기에서는 화면 전체 사용 */
-@media (max-width: 430px) {
-  body {
-    background-color: #ffffff;
+  * {
+    box-sizing: border-box;
   }
 
+  html,
+  body,
+  #root {
+    margin: 0;
+    min-height: 100%;
+    width: 100%;
+  }
+
+  body {
+    min-width: 320px;
+    min-height: 100dvh;
+    background-color: #e8eaed;
+    font-family: Pretendard, -apple-system,
+      BlinkMacSystemFont, "Segoe UI",
+      sans-serif;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  /* PC에서 모바일 앱 중앙 정렬 */
+  #root {
+    min-height: 100dvh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* 모바일 앱 컨테이너 */
   .mobile-container {
-    max-width: none;
+    width: 100%;
+    max-width: 430px;
+    min-height: 100dvh;
+    background-color: var(--color-background);
+    color: var(--color-text-main);
+    position: relative;
+    overflow-x: clip;
+  }
+
+  /* 모바일 기기에서는 화면 전체 사용 */
+  @media (max-width: 430px) {
+    body {
+      background-color: #ffffff;
+    }
+
+    .mobile-container {
+      max-width: none;
+    }
   }
 }
