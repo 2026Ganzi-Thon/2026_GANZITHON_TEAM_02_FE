@@ -53,8 +53,11 @@ src
  ┣ types       # 도메인 타입 (Goal, Memo, Condition ...)
  ┣ mocks       # 목업 데이터 (Supabase 연동 전 임시)
  ┣ api         # 데이터 접근 함수 — 화면은 반드시 여기만 호출
+ ┣ preview     # 공통 컴포넌트 미리보기 (개발 전용, /preview.html)
  ┗ utils       # 날짜 변환 등 공통 함수
 ```
+
+루트의 `preview.html`은 미리보기 진입점이며 배포 빌드(`index.html`)에는 포함되지 않는다.
 
 사용하지 않는 폴더는 미리 만들지 않는다.
 

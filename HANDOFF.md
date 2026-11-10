@@ -2,6 +2,7 @@
 
 > 작성: 2026-11-10 19:30 (KST) · 작성 환경: Claude (claude.ai 세션)
 > 갱신: 2026-11-10 (KST) · Claude Code — GitHub·Notion·Figma 재확인 결과 반영 (서비스명 확정, 마감 일정, 브랜치 복원, 하단 내비)
+> 갱신: 2026-11-10 20:20 (KST) · Claude — push·PR 현황, 디자인 확정(하단 내비 4개 탭, 팝업 X 없이 취소 버튼) 반영
 > 다음 Claude Code 세션이 이어서 작업할 수 있도록 현재 상태를 정리한 문서입니다.
 > 규칙은 `CLAUDE.md` / `AGENTS.md`, 상세 명세는 `docs/`를 참고하세요.
 
@@ -34,15 +35,16 @@
 
 ## 2. 브랜치 · 커밋 현황
 
-**원격(origin)**: `main`, `develop`만 존재. 아래 두 작업 브랜치는 **로컬에만 있고 push·PR 모두 안 함.**
+**원격(origin)**: `main`, `develop`, `feat/docs-setup`, `feat/common-components` — 두 작업 브랜치 모두 **push 완료, PR 리뷰 대기** (리뷰어 미지정).
 
 | 브랜치 | 기준 | 커밋 | 상태 |
 |---|---|---|---|
-| `develop` (원격) | - | `62f9d60` chore: TailwindCSS 설치 및 초기 설정 (팀원B) | 최신 |
-| `feat/docs-setup` | `develop` | `9c73b9f` docs: 개발 문서 및 AGENTS.md 추가 | 로컬 커밋 1개 + **미커밋: `CLAUDE.md`, `HANDOFF.md`** |
-| `feat/common-components` | `develop` | `a213769` design: 디자인 토큰 및 Pretendard 폰트 설정<br>`750cd76` feat: 공통 컴포넌트 및 모바일 레이아웃 추가<br>`a609e00` feat: 도메인 타입 및 목업 데이터 API 추가<br>`3766864` chore: 공통 컴포넌트 미리보기 페이지 추가 | 로컬 커밋 4개 |
+| `develop` | - | `62f9d60` chore: TailwindCSS 설치 및 초기 설정 (팀원B) | 최신 |
+| `feat/docs-setup` | `develop` | `9c73b9f` docs: 개발 문서 및 AGENTS.md 추가<br>`22830ea` docs: CLAUDE.md 및 HANDOFF.md 추가<br>`b8fd075` docs: PRD에 확정된 서비스명 반영<br>+ docs: 디자인 확정 사항 및 작업 현황 반영 | **PR #2** (→ `develop`) |
+| `feat/common-components` | `develop` | `a213769` design: 디자인 토큰 및 Pretendard 폰트 설정<br>`750cd76` feat: 공통 컴포넌트 및 모바일 레이아웃 추가<br>`a609e00` feat: 도메인 타입 및 목업 데이터 API 추가<br>`3766864` chore: 공통 컴포넌트 미리보기 페이지 추가<br>+ `7bea5d6` design: 하단 내비 4개 탭 및 팝업 취소 버튼 방식 반영 | **PR #3** (→ `develop`) |
 
-- 2026-11-10: 새 PC(`Desktop\2026Ganzi-Thon`)에 clone 후 `ganzithon-fe-local-branches.bundle`에서 두 로컬 브랜치를 복원함 (커밋 해시 동일). `CLAUDE.md`·`HANDOFF.md`는 `feat/docs-setup` 작업 트리에 미커밋 상태로 복사.
+- 그 밖에 열린 PR: #1 `develop` → `main` [Chore] Node.js, npm 버전 통일 및 Tailwind CSS 초기 설정 (팀원B)
+- 2026-11-10: 새 PC(`Desktop\2026Ganzi-Thon`)에 clone 후 번들에서 두 로컬 브랜치를 복원해 push함.
 - 두 브랜치는 **수정 파일이 겹치지 않음** → 어느 순서로 머지해도 충돌 없음.
 - 단, `docs/`가 `feat/common-components`의 파일(`global.css` 토큰, `src/components/icons`)을 언급하므로 **두 PR을 함께 머지**하는 것이 자연스러움.
 - `main`에만 있는 `.github/pull_request_template.md`는 `develop`에 아직 없음.
@@ -56,8 +58,8 @@
 | `docs/USER_FLOW.md` | IA, 전체 유저플로우(mermaid), 로그인 시점, 100일 목표 진입 분기표, 지원 정보 분기표 |
 | `docs/FUNCTION_SPEC.md` | 팀원A 화면별 기능(홈·목표·메모장·팝업), 공통 컴포넌트 목록, 데이터 타입 초안 |
 | `docs/DESIGN_GUIDE.md` | Figma 변수 기반 색상·타이포·radius 토큰, 컴포넌트 규격, 에셋, 디자인 미정 사항 |
-| `CLAUDE.md` *(미커밋)* | Claude Code용 요약 규칙 |
-| `HANDOFF.md` *(미커밋)* | 이 문서 |
+| `CLAUDE.md` | Claude Code용 요약 규칙 |
+| `HANDOFF.md` | 이 문서 |
 
 ## 4. 완료된 개발 작업 (`feat/common-components`)
 
@@ -69,6 +71,7 @@
 - **Pretendard 폰트**: `index.html`에 jsDelivr CDN `<link>` 추가
 - **공통 컴포넌트 · 레이아웃 · 목업 구조** (아래 5장)
 - **미리보기 페이지**: `preview.html` + `src/preview/` (개발 전용, 배포 빌드 미포함)
+- **디자인 확정 반영 (2026-11-10)**: `BottomNav` 4개 탭 고정, `Modal` X 버튼 옵션 제거·`ModalActions` 취소 버튼 필수, 안 쓰게 된 `GoalIcon`·`CloseIcon` 제거
 - 검증: `npm run build`, `npm run lint` 통과 (Node v22 환경), 헤드리스 크롬으로 402px·PC 화면 확인
 
 ## 5. 구현된 공통 컴포넌트
@@ -79,13 +82,13 @@
 | `src/components/TextField.tsx` | `TextField` | `label?`, `tone: 'emphasis'(빨간 테두리) \| 'default'(베이지 테두리)`, 기본 input 속성 |
 | `src/components/TextArea.tsx` | `TextArea` | 기본 textarea 속성 (높이 141px) |
 | `src/components/Chip.tsx` | `Chip` | `selected`, `size: 'md'(42px) \| 'sm'(40px)` |
-| `src/components/Modal.tsx` | `Modal` | `open`, `onClose`, `title`, `description?`, `showCloseButton?`, `footer?`, `children` (portal, Esc·배경 클릭 닫기, 스크롤 잠금) |
-| | `ModalActions` | `onConfirm`, `confirmLabel='수정하기'`, `onCancel?`(없으면 확인 버튼만), `cancelLabel='취소'`, `confirmDisabled` |
+| `src/components/Modal.tsx` | `Modal` | `open`, `onClose`, `title`, `description?`, `footer?`, `children` (X 버튼 없음, portal, Esc·배경 클릭 닫기, 스크롤 잠금) |
+| | `ModalActions` | `onCancel`(필수), `onConfirm`, `cancelLabel='취소'`, `confirmLabel='수정하기'`, `confirmDisabled` — 버튼이 하나인 팝업은 footer에 `Button` 직접 사용 |
 | `src/components/PageTitle.tsx` | `PageTitle` | `label?`, `title`, `description?` |
 | `src/components/Header.tsx` | `Header` | `showBack?`, `onBack?`, `right?` (가운데 `/sheep.png` 로고) |
-| `src/components/BottomNav.tsx` | `BottomNav` | `active?: 'home'\|'goal'\|'memo'\|'support'\|'my'`, `onNavigate?`, `items?`(표시 탭 선택, 기본 5개) |
+| `src/components/BottomNav.tsx` | `BottomNav` | `active?: 'home'\|'memo'\|'support'\|'my'`, `onNavigate?` (홈/메모/지원/내 정보 4개 탭 고정) |
 | `src/components/BottomActionArea.tsx` | `BottomActionArea` | `helperText?`, `children` |
-| `src/components/icons/index.tsx` | `HomeIcon` `GoalIcon` `MemoIcon` `SearchIcon` `UserIcon` `BackIcon` `CloseIcon` | SVG props, `currentColor` |
+| `src/components/icons/index.tsx` | `HomeIcon` `MemoIcon` `SearchIcon` `UserIcon` `BackIcon` | SVG props, `currentColor` |
 | `src/layouts/MobileLayout.tsx` | `MobileLayout` | `header?`, `bottom?`, `children` (헤더 / 스크롤 본문 / 하단) |
 | `src/utils/cn.ts` | `cn()` | className 조합 |
 
@@ -135,12 +138,19 @@ npm run lint       # eslint
 - Node 26.8.2 사용 (`engines` 고정). 이전 확인은 Node v22에서 진행됨 → 26.8.2에서 한 번 더 확인 필요. 새 PC도 Node v22.23.2 / npm 10.9.8이며, 이 환경에서 `npm install`을 하면 `package-lock.json`이 바뀌므로 커밋 전에 되돌린다.
 - 문서만 볼 때는 `feat/docs-setup`.
 
-## 8. 아직 결정되지 않은 사항 (확정 금지)
+## 8. 결정 사항 · 아직 결정되지 않은 사항
+
+확정 (2026-11-10, 디자인 결정 + Figma 최신 화면 확인)
+
+| 항목 | 결정 | 반영 |
+|---|---|---|
+| 하단 내비 탭 | **4개: 홈 / 메모 / 지원 / 내 정보**. 1-1·1-2·3-1·4-1·5-1 모두 4개 탭. 5개 탭은 Section 1의 이전 시안(2-2 목표 대시보드)에만 남아 있음 | `BottomNav` 4개 고정 |
+| 팝업 닫기 방식 | **X 버튼 없이 하단 `취소` 버튼** (Figma ver1). 최신 팝업 6종(목표·오늘 목표·주간 계획·NEW NOTE·메모 상세) 모두 같은 형태 | `Modal` X 제거, `ModalActions` 취소 필수 |
+
+미정 (확정 금지)
 
 | 항목 | 현재 상태 | 결정 주체 |
 |---|---|---|
-| 하단 내비 탭 개수 | Figma 변형마다 `목표` 탭 유무가 다름 → `BottomNav`의 `items`로 선택 가능하게 둠. 2026-11-10 확인: 홈 1-1·1-2 화면은 **4개(홈/메모/지원/내 정보)**, `목표` 탭 없음 | 디자인 |
-| 팝업 닫기 방식 | Figma에 ver1 취소 / ver2 X / ver3 취소+X → `Modal`이 모두 지원 | 디자인 |
 | 오늘 목표 기록 방식 | 홈(1-1)은 `오늘 실천했어요` 버튼, 2-2 목표 대시보드는 체크박스 | 디자인 |
 | 로고 | 서비스명은 **"메에일" 확정**(11-09). 로고는 제작 중(Figma 할 일: "로고 제작 후 서비스명 옆에 넣기") → 현재 `public/sheep.png` 사용 | 디자인 |
 | 와이어프레임 미완 화면 | Figma 할 일 목록에 "0-0, 0-1, 0-4, 3-1 팝업, 4, 5", "화면 옆 기능 나열"이 남아 있음 → 해당 화면은 구현 전 재확인 | 디자인 |
@@ -162,23 +172,13 @@ npm run lint       # eslint
 - Figma 에셋 URL(figma.com)은 이 환경에서 다운로드가 막혀 있었음 → 아이콘은 Figma가 사용한 Iconify 아이콘과 같은 path로 구현, 로고는 `public/sheep.png` 사용.
 - 미리보기 스크린샷 확인 시 폰트 CDN이 막힌 환경이면 대체 폰트로 보임 (실제 브라우저에서는 Pretendard).
 
-### 문서 ↔ 코드 불일치 (다음 문서 수정 때 반영 필요)
-
-`docs/FUNCTION_SPEC.md` 4장 Props 표가 실제 코드와 다름 — **코드가 맞음**:
-
-| 컴포넌트 | 문서 | 실제 코드 |
-|---|---|---|
-| `TextField` | `tone: focus \| default` | `tone: 'emphasis' \| 'default'`, `label` prop 추가 |
-| `MobileLayout` | `header`, `bottomNav`, `children` | `header`, `bottom`, `children` |
-| `BottomNav` | `active`만 표기 | `active`, `onNavigate`, `items` |
-| `ModalActions` | - | `confirmDisabled` 추가 |
-
-`AGENTS.md` 4장 폴더 구조에 `src/preview`, `preview.html`이 빠져 있음.
+- 2026-11-10 디자인 확정 반영 때 `BottomNav`의 `items`, `Modal`의 `showCloseButton` prop을 제거하고 `ModalActions`의 `onCancel`을 필수로 바꿈 (PR #3 머지 전이라 사용처 없음). 이후 공통 컴포넌트 Props 변경은 CLAUDE.md 규칙대로 **추가만** 한다.
+- 이전에 있던 문서↔코드 불일치(`FUNCTION_SPEC.md` Props 표, `AGENTS.md` 폴더 구조의 `preview` 누락)는 이번에 수정함.
 
 ## 10. 다음 개발 단계 (우선순위)
 
-1. **리뷰 후 push · PR** — `feat/docs-setup`(+ CLAUDE.md, HANDOFF.md 커밋), `feat/common-components` 각각 `develop` 대상 PR. PR 본문에 `global.css` `@layer base` 변경 이유 명시. 위 문서 불일치도 이때 수정.
-2. **팀 확인 요청** — 하단 내비 탭 개수, 팝업 닫기 방식, 목표 기록 방식(8장) / 팀원B에게 라우트 경로·`index.css` 정리 / 백엔드에 `src/types` 초안 공유.
+1. **PR #2·#3 마무리** — 이번 수정 커밋 push(두 브랜치), 은빈님 리뷰어 지정, PR #3 본문에 디자인 확정 반영 내용·미리보기 스크린샷 추가 → 리뷰 후 함께 Squash Merge.
+2. **팀 확인 요청** — 목표 기록 방식(8장) / 팀원B에게 `global.css` `@layer base`·라우트 경로·`index.css` 정리 / 백엔드에 `src/types` 초안 공유.
 3. **`feat/goal-setting`** — 2-1 목표 설정 → 2-2 주간 계획 확인 + 목표·주간 계획 수정 팝업 (`requestWeeklyPlanDraft`, `saveGoal`) — PRD Must
 4. **`feat/home-dashboard`** — 1-1/1-2 홈: 컨디션 카드, 오늘의 목표, 실천/쉬어가기, 오늘 목표 성공 팝업 (`saveDailyRecord`) — Must. 양털판(100칸)·4주 계획은 Should
 5. **`feat/memo`** — 3-1 메모 목록 + 작성·상세·삭제 팝업 (`memo` API) — Must, 수정은 Should

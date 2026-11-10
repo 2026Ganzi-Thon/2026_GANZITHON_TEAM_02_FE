@@ -56,14 +56,14 @@
 | 컴포넌트 | 규격 |
 |---|---|
 | 주요 버튼 | 높이 56, 가로 꽉 참, `primary` 배경, 흰 글씨, radius 10 |
-| 팝업 버튼 | 높이 42, radius 12. 주요: `primary` / 보조(취소): `background` 배경 + `text-main` |
+| 팝업 버튼 | 높이 42, radius 12. 주요: `primary` / 보조(취소): `background` 배경 + `text-main`. 왼쪽 취소 · 오른쪽 확인, 간격 18 |
 | 입력 필드 | 높이 56, 좌우 패딩 16, radius 12, `surface` 배경. 페이지 입력은 `primary-pressed` 테두리, 팝업 입력은 `border` 테두리. placeholder `text-sub`, 입력 후 `text-main` |
 | 메모 입력 필드 | 높이 141, radius 12, `border` 테두리 |
 | 선택 칩 | 높이 42(칩1) / 40(칩2), radius 20. 미선택: `surface` + `border` + `text-main` Regular / 선택: `primary-soft` + `primary-pressed` 테두리·글씨 Bold |
-| 팝업 | 너비 322, `surface-warm` 배경, `primary-pressed` 1px 테두리, radius 12, 패딩 16·24, 요소 간격 8, 액션 영역 위 16 여백 |
+| 팝업 | 너비 322, `surface-warm` 배경, `primary-pressed` 1px 테두리, radius 12, 패딩 16·24, 요소 간격 8, 액션 영역 위 16 여백. **X 버튼 없음, 하단 `취소` 버튼으로 닫기** |
 | 페이지 타이틀 | 패딩 32·40, 라벨/제목/설명 간격 8 |
 | 공통 헤더 | 높이 56, 하단 `border` 0.5px, 가운데 양 로고(47×31), 이전 버전은 왼쪽 40px에 뒤로가기 아이콘(15px) |
-| 하단 내비 | 높이 104, `surface` 배경, 탭 간격 30, 아이콘 24, 라벨 10px. 비활성 `text-sub` / 활성 `primary-pressed` |
+| 하단 내비 | **4개 탭(홈 / 메모 / 지원 / 내 정보)**, 높이 104, `surface` 배경, 탭 간격 30, 아이콘 24, 라벨 10px. 비활성 `text-sub` / 활성 `primary-pressed` |
 | 하단 액션 영역 | 패딩 32·40, 주요 버튼 1개 (+ 위쪽 안내 문구) |
 
 ## 6. 에셋
@@ -71,10 +71,15 @@
 | 에셋 | 위치 | 비고 |
 |---|---|---|
 | 양 로고 / 캐릭터 | `public/sheep.png` | Figma `양` 프레임과 동일 원본 (1536×1024) |
-| 하단 내비·뒤로가기 아이콘 | `src/components/icons` | Figma에서 사용한 Iconify 아이콘(arcticons, material-symbols-light, bxs, grommet-icons)과 같은 path, `currentColor`로 색 지정 |
+| 하단 내비·뒤로가기 아이콘 | `src/components/icons` | Figma에서 사용한 Iconify 아이콘(arcticons, bxs, grommet-icons)과 같은 path, `currentColor`로 색 지정 |
 
-## 7. 미확정 사항 (디자인 확인 필요)
+## 7. 확정 · 미확정 사항
 
-- 팝업 닫기 방식: 취소 버튼 / X 버튼 / 취소+X 중 선택
-- 하단 내비 탭 개수: `목표` 탭 포함 5개 vs 4개 (Figma 변형마다 다름)
+확정 (2026-11-10)
+
+- 팝업 닫기 방식: **X 버튼 없이 하단 `취소` 버튼** (Figma ver1). 배경 클릭·Esc로도 닫힘
+- 하단 내비: **4개 탭 — 홈 / 메모 / 지원 / 내 정보** (`목표` 탭 없음, 100일 목표는 홈에서 진입)
+
+미확정
+
 - 디자이너 TODO: 컴포넌트 variant 정리, 로고 제작 후 서비스명 옆 배치 → 토큰·컴포넌트가 바뀌면 이 문서도 갱신

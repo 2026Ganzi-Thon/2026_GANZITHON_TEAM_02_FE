@@ -40,7 +40,7 @@
 | 오늘 목표 성공 | `오늘의 털 한 칸을 채웠어요!`, 양털판, `해보니 어땠나요?`(선택: 이 정도면 괜찮아요 / 아직 부담돼요), `대시보드로 돌아가기`, `완료 취소` 링크 |
 | 주간 계획 수정 | 제목 `주간 계획 수정하기`, 1~4주차 입력, `취소` / `수정하기` |
 
-> 팝업 닫기 방식은 Figma에 3가지 버전(취소 버튼 / X 버튼 / 취소+X)이 있음 → 공통 Modal은 둘 다 지원하고 확정되면 기본값만 바꾼다.
+> 팝업 닫기 방식 (2026-11-10 확정): **X 버튼 없이 하단 `취소` 버튼**으로 닫는다. 버튼이 하나인 팝업(오늘 목표 성공 팝업)은 `대시보드로 돌아가기` 버튼과 배경 클릭으로 닫는다.
 
 ---
 
@@ -94,16 +94,16 @@
 | 컴포넌트 | Figma 이름 | 주요 Props |
 |---|---|---|
 | `Button` | 주요 버튼 / 취소 버튼 / 수정하기 버튼 | `variant: primary \| secondary`, `size: lg(56px) \| md(42px)`, `fullWidth`, `disabled` |
-| `TextField` | 입력 필드 / 팝업 수정 입력 필드 | `value`, `onChange`, `placeholder`, `tone: focus \| default` |
+| `TextField` | 입력 필드 / 팝업 수정 입력 필드 | `label?`, `tone: emphasis(빨간 테두리) \| default(베이지 테두리)`, 기본 input 속성 |
 | `TextArea` | 메모 입력 팝업 필드 | `value`, `onChange`, `placeholder`, `rows` |
 | `Chip` | 선택 칩1 / 선택 칩2 | `selected`, `size: md(42px) \| sm(40px)`, `onClick` |
-| `Modal` | 각종 수정 팝업 | `open`, `onClose`, `title`, `description`, `showCloseButton`, `footer` |
-| `ModalActions` | 팝업 액션 영역 | `cancelLabel`, `confirmLabel`, `onCancel`, `onConfirm` |
+| `Modal` | 각종 수정 팝업 | `open`, `onClose`, `title`, `description?`, `footer?`, `children` (X 버튼 없음) |
+| `ModalActions` | 팝업 액션 영역 | `onCancel`(필수), `onConfirm`, `cancelLabel='취소'`, `confirmLabel='수정하기'`, `confirmDisabled` |
 | `PageTitle` | 페이지 타이틀 | `label`, `title`, `description` |
 | `Header` | 공통 헤더 / 공통 헤더(ver.이전) | `showBack`, `onBack`, `right` |
-| `BottomNav` | 하단 내비게이션 | `active: home \| goal \| memo \| support \| my` |
+| `BottomNav` | 하단 내비게이션 (4개 탭) | `active?: home \| memo \| support \| my`, `onNavigate?` |
 | `BottomActionArea` | 하단 액션 영역 | `children`, `helperText` |
-| `MobileLayout` | (레이아웃) | `header`, `bottomNav`, `children` |
+| `MobileLayout` | (레이아웃) | `header?`, `bottom?`, `children` |
 
 `BottomNav`의 각 탭 경로는 은빈님의 라우터 경로가 정해지면 연결한다. 지금은 `onNavigate` 콜백으로 받는다.
 

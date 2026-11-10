@@ -42,6 +42,7 @@ Claude Code가 이 저장소에서 작업할 때 가장 먼저 읽는 파일입�
 
 - **기존 공통 컴포넌트와 목업 구조를 먼저 재사용한다.** 새로 만들기 전에 `src/components`, `src/layouts`, `src/api`를 확인한다.
   - 버튼 → `Button`, 입력 → `TextField`/`TextArea`, 선택지 → `Chip`, 팝업 → `Modal` + `ModalActions`, 화면 틀 → `MobileLayout` + `Header` + `BottomNav`/`BottomActionArea`, 제목 → `PageTitle`
+  - 디자인 확정(2026-11-10): 하단 내비는 **홈/메모/지원/내 정보 4개 탭**, 팝업은 **X 버튼 없이 하단 `취소` 버튼**으로 닫는다.
 - 색상·글자 크기는 토큰 클래스만 쓴다 (`bg-primary`, `text-text-main`, `text-caption`, `rounded-card` …). hex 값 직접 사용 금지.
 - 화면은 `src/mocks`를 직접 import하지 않고 **`src/api` 함수만 호출**한다. 새 데이터가 필요하면 `src/types` → `src/mocks` → `src/api` 순으로 추가한다.
 - 전역 CSS 규칙은 `global.css`의 `@layer base` 안에 둔다. (레이어 밖에 두면 Tailwind 유틸리티를 덮어써서 `text-*` 등이 무시됨)
