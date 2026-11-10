@@ -20,21 +20,28 @@ type ModalProps = {
 export function Modal({ open, onClose, title, description, footer, children }: ModalProps) {
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
+  // 부모가 다시 렌더링될 때마다 onClose가 새 함수가 되어도 아래 effect가 다시 돌지 않도록 ref로 보관한다.
+  // (effect가 다시 돌면 포커스가 팝업 틀로 옮겨져 입력 중이던 글자가 끊기는 문제가 있었음)
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!open) return;
     const handleKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape') onCloseRef.current();
     };
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     document.addEventListener('keydown', handleKey);
+    // 팝업이 열릴 때 한 번만 포커스를 옮긴다
     dialogRef.current?.focus();
     return () => {
       document.body.style.overflow = prevOverflow;
       document.removeEventListener('keydown', handleKey);
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 
