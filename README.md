@@ -1,75 +1,158 @@
-# React + TypeScript + Vite
+## 📁 폴더 구조
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+프로젝트는 React + TypeScript + Vite 기반으로 구성되어 있습니다.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```text
+📦 src
+ ┣ assets          # 이미지, 아이콘, 폰트 등 정적 리소스
+ ┣ components      # 재사용 가능한 공통 UI 컴포넌트
+ ┣ hooks           # 커스텀 React Hooks
+ ┣ layouts         # 공통 레이아웃 컴포넌트
+ ┣ pages           # 페이지 단위 컴포넌트
+ ┣ styles          # 전역 CSS 및 디자인 토큰
+ ┣ types           # TypeScript 타입 정의
+ ┣ utils           # 공통 유틸리티 함수
+ ┣ App.tsx         # 최상위 앱 컴포넌트
+ ┗ main.tsx        # 앱 진입점
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+### 폴더 관리 규칙
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **components**: 여러 페이지에서 재사용하는 컴포넌트를 관리합니다.
+- **pages**: 페이지 단위로 컴포넌트를 구분합니다.
+- **layouts**: 모바일 컨테이너, 공통 헤더 등 레이아웃을 관리합니다.
+- **styles**: 전역 스타일과 색상, 폰트 등 디자인 토큰을 관리합니다.
+- **hooks**: 여러 컴포넌트에서 재사용하는 커스텀 Hooks를 관리합니다.
+- **types**: 공통으로 사용하는 TypeScript 타입을 정의합니다.
+- **utils**: 날짜 변환, 데이터 가공 등의 공통 함수를 관리합니다.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+사용하지 않는 폴더는 미리 생성하지 않고, 필요할 때 추가합니다.
 
+---
+
+## 🌿 Git 브랜치 전략
+
+본 프로젝트는 `main`, `develop`, `기능별 작업 브랜치`를 사용합니다.
+
+| 브랜치 | 설명 |
+|---|---|
+| `main` | 최종 배포 및 안정화 브랜치 |
+| `develop` | 개발 기능 통합 브랜치 |
+| `feat/*` | 새로운 기능 개발 |
+
+### 브랜치 네이밍 규칙
+
+브랜치 이름은 영문 소문자와 하이픈(`-`)을 사용합니다.
+
+```text
+feat/home-page
+feat/login
+...
 ```
+
+### 작업 및 병합 규칙
+
+1. 새로운 기능은 `develop`에서 브랜치를 **생성**합니다.
+2. 각 작업은 독립된 브랜치에서 진행합니다.
+3. 작업 완료 후 `develop`을 대상으로 Pull Request를 생성합니다.
+4. 코드 리뷰 및 테스트 후 병합합니다.
+5. 배포 전 검증이 완료된 `develop`을 `main`에 병합합니다.
+6. `main`, `develop` 브랜치에는 직접 push하지 않는 것을 원칙으로 합니다.
+
+---
+
+## 📝 Commit Convention
+
+커밋 메시지는 다음 형식을 따릅니다.
+
+```text
+type: 작업 내용
+```
+
+### 커밋 타입
+
+| Type | 설명 |
+|---|---|
+| `feat` | 새로운 기능 추가 |
+| `fix` | 버그 수정 |
+| `design` | UI 및 CSS 스타일 변경 |
+| `refactor` | 기능 변경 없는 코드 개선 |
+| `docs` | 문서 작성 및 수정 |
+| `chore` | 프로젝트 설정 및 기타 작업 |
+| `test` | 테스트 코드 추가 및 수정 |
+| `perf` | 성능 개선 |
+| `build` | 빌드 및 의존성 관련 변경 |
+| `ci` | CI/CD 설정 변경 |
+| `revert` | 이전 커밋 되돌리기 |
+
+### 커밋 메시지 작성 규칙
+
+- 커밋 메시지는 `type: 작업 내용` 형식으로 작성합니다.
+- Type은 영문 소문자로 작성합니다.
+- Type 뒤에는 콜론(`:`)과 공백을 추가합니다.
+- 작업 내용은 한글로 작성합니다.
+- 작업 내용을 간결하고 명확하게 작성합니다.
+- 하나의 커밋에는 가능한 한 하나의 논리적인 변경 사항만 포함합니다.
+
+### 커밋 메시지 예시
+
+```bash
+feat: 로그인 페이지 구현
+feat: 주간 계획 등록 기능 추가
+design: 홈 화면 카드 UI 스타일 적용
+fix: 모바일 화면 가로 스크롤 오류 수정
+refactor: 공통 버튼 컴포넌트 분리
+docs: README 프로젝트 구조 업데이트
+chore: ESLint 초기 설정
+test: 로그인 폼 유효성 검사 테스트 추가
+```
+
+---
+
+## 🔀 Pull Request Convention
+
+### PR 제목
+
+```text
+[Type] 작업 내용
+```
+
+예시:
+
+```text
+[Feat] 로그인 페이지 구현
+[Design] 홈 화면 UI 작업
+[Fix] 주간 계획 저장 오류 수정
+[Refactor] 공통 헤더 컴포넌트 분리
+```
+
+### PR 작성 양식
+
+```markdown
+## 📌 작업 내용
+- 구현하거나 수정한 내용을 작성합니다.
+
+## 🔧 주요 변경 사항
+- 변경 사항 1
+- 변경 사항 2
+
+## 📸 스크린샷
+- UI 변경 사항이 있는 경우 첨부합니다.
+
+## ✅ 확인 사항
+- [ ] 로컬 환경에서 정상 동작 확인
+- [ ] TypeScript 및 ESLint 오류 확인
+- [ ] 모바일 화면 레이아웃 확인
+- [ ] 불필요한 코드 및 로그 제거
+
+## 💬 기타 사항
+- 리뷰어가 알아야 할 내용을 작성합니다.
+```
+
+### PR 병합 규칙
+
+- PR은 기본적으로 `develop` 브랜치를 대상으로 생성합니다.
+- 팀원에게 리뷰를 요청합니다.
+- 충돌 발생 시 작업자가 해결합니다.
+- 기능별 PR은 가급적 Squash Merge를 사용합니다.
+- 검증되지 않은 코드는 `main`에 병합하지 않습니다.
