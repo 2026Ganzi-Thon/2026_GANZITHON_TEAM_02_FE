@@ -3,7 +3,7 @@ import type { SVGProps } from 'react';
 /**
  * Figma 하단 내비게이션·헤더에서 사용한 Iconify 아이콘과 같은 path.
  * 색은 currentColor를 따르므로 부모의 text-* 클래스로 지정한다.
- * - home: arcticons:home-smart / goal: material-symbols-light:playlist-add-check
+ * - home: arcticons:home-smart
  * - memo: arcticons:youdao-note / search: arcticons:emoji-search
  * - user: bxs:user / back: grommet-icons:previous
  * viewBox는 Figma 에셋처럼 아이콘 실제 영역에 맞춰 잘라 두었다.
@@ -28,16 +28,6 @@ export function HomeIcon(props: IconProps) {
   );
 }
 
-export function GoalIcon(props: IconProps) {
-  return (
-    <svg width={24} height={24} viewBox="3 6 18.7 12.8" aria-hidden {...props}>
-      <path
-        fill="currentColor"
-        d="M3.5 15.5v-1h7v1zm0-4v-1h11v1zm0-4v-1h11v1zm12.85 10.808l-2.858-2.858l.708-.708l2.15 2.139l4.25-4.25l.708.719z"
-      />
-    </svg>
-  );
-}
 
 export function MemoIcon(props: IconProps) {
   return (
@@ -73,14 +63,6 @@ export function BackIcon(props: IconProps) {
   return (
     <svg width={15} height={15} viewBox="0 0 24 24" aria-hidden {...props}>
       <path fill="none" stroke="currentColor" strokeWidth={2} d="M17 2L7 12l10 10" />
-    </svg>
-  );
-}
-
-export function CloseIcon(props: IconProps) {
-  return (
-    <svg width={20} height={20} viewBox="0 0 24 24" aria-hidden {...props}>
-      <path fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" d="M6 6l12 12M18 6L6 18" />
     </svg>
   );
 }

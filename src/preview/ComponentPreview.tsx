@@ -28,7 +28,7 @@ export function ComponentPreview() {
   const [tab, setTab] = useState<BottomNavKey>('home');
   const [goal, setGoal] = useState('');
   const [chip, setChip] = useState<'okay' | 'burden' | null>('okay');
-  const [modal, setModal] = useState<'edit' | 'editClose' | 'memo' | null>(null);
+  const [modal, setModal] = useState<'edit' | 'memo' | null>(null);
   const [memo, setMemo] = useState('');
 
   return (
@@ -75,10 +75,7 @@ export function ComponentPreview() {
       <Section title="Modal">
         <div className="flex flex-wrap gap-2">
           <Button size="md" variant="secondary" onClick={() => setModal('edit')}>
-            ver1. 취소 버튼
-          </Button>
-          <Button size="md" variant="secondary" onClick={() => setModal('editClose')}>
-            ver3. 취소 + X
+            목표 수정 팝업
           </Button>
           <Button size="md" variant="secondary" onClick={() => setModal('memo')}>
             메모 팝업
@@ -97,11 +94,10 @@ export function ComponentPreview() {
       </BottomActionArea>
 
       <Modal
-        open={modal === 'edit' || modal === 'editClose'}
+        open={modal === 'edit'}
         onClose={() => setModal(null)}
         title="오늘의 목표 수정하기"
         description="내가 바라는 변화에 맞게 고쳐주세요."
-        showCloseButton={modal === 'editClose'}
         footer={<ModalActions onCancel={() => setModal(null)} onConfirm={() => setModal(null)} />}
       >
         <TextField tone="default" placeholder="예) 나에게 맞는 생활 리듬 만들기" aria-label="오늘의 목표" />

@@ -1,15 +1,12 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from './Button';
-import { CloseIcon } from './icons';
 
 type ModalProps = {
   open: boolean;
   onClose: () => void;
   title: ReactNode;
   description?: ReactNode;
-  /** 오른쪽 위 X 버튼 표시 (Figma ver2·ver3) */
-  showCloseButton?: boolean;
   /** 팝업 하단 버튼 영역. 보통 <ModalActions /> */
   footer?: ReactNode;
   children?: ReactNode;
@@ -17,9 +14,10 @@ type ModalProps = {
 
 /**
  * Figma '오늘 목표 수정 팝업', '주간 계획 수정 팝업', '메모 팝업' 등의 공통 틀.
- * 배경 클릭·Esc로 닫힌다.
+ * 2026-11-10 디자인 확정: X 버튼 없이 하단 '취소' 버튼으로 닫는다 (Figma ver1).
+ * 배경 클릭·Esc로도 닫힌다.
  */
-export function Modal({ open, onClose, title, description, showCloseButton = false, footer, children }: ModalProps) {
+export function Modal({ open, onClose, title, description, footer, children }: ModalProps) {
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -51,21 +49,9 @@ export function Modal({ open, onClose, title, description, showCloseButton = fal
         onClick={(event) => event.stopPropagation()}
         className="relative flex w-full max-w-[322px] flex-col gap-2 rounded-card border border-primary-pressed bg-surface-warm px-6 py-4 text-left focus:outline-none"
       >
-        <div className="flex items-start justify-between gap-2">
-          <h2 id={titleId} className="text-section text-text-main">
-            {title}
-          </h2>
-          {showCloseButton && (
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="닫기"
-              className="-mr-2 flex size-8 shrink-0 items-center justify-center text-text-main"
-            >
-              <CloseIcon />
-            </button>
-          )}
-        </div>
+        <h2 id={titleId} className="text-section text-text-main">
+          {title}
+        </h2>
         {description && <p className="text-caption text-text-sub">{description}</p>}
         {children}
         {footer && <div className="pt-4">{footer}</div>}
@@ -78,13 +64,16 @@ export function Modal({ open, onClose, title, description, showCloseButton = fal
 type ModalActionsProps = {
   onConfirm: () => void;
   confirmLabel?: string;
-  /** 없으면 취소 버튼을 숨기고 확인 버튼만 꽉 차게 표시 (Figma ver2) */
-  onCancel?: () => void;
+  /** 취소 버튼 (팝업을 닫는 유일한 버튼이므로 필수) */
+  onCancel: () => void;
   cancelLabel?: string;
   confirmDisabled?: boolean;
 };
 
-/** Figma '팝업 액션 영역' — 취소 / 확인 버튼 */
+/**
+ * Figma '팝업 액션 영역' — 취소 / 확인 버튼.
+ * 버튼이 하나뿐인 팝업(예: 오늘 목표 성공 팝업의 '대시보드로 돌아가기')은 footer에 <Button fullWidth size="lg" />를 직접 넣는다.
+ */
 export function ModalActions({
   onConfirm,
   confirmLabel = '수정하기',
@@ -94,11 +83,9 @@ export function ModalActions({
 }: ModalActionsProps) {
   return (
     <div className="flex gap-[18px]">
-      {onCancel && (
-        <Button variant="secondary" size="md" className="flex-1" onClick={onCancel}>
-          {cancelLabel}
-        </Button>
-      )}
+      <Button variant="secondary" size="md" className="flex-1" onClick={onCancel}>
+        {cancelLabel}
+      </Button>
       <Button size="md" className="flex-1" onClick={onConfirm} disabled={confirmDisabled}>
         {confirmLabel}
       </Button>
