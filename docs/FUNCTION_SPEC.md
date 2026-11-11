@@ -7,10 +7,13 @@
 
 | 영역 | 담당 | 상태 |
 |---|---|---|
-| 공통 컴포넌트 · 디자인 토큰 · 모바일 레이아웃 | 팀원A (유민) | 진행 중 |
-| 1 홈 / 2 100일 목표 / 3 비공개 메모장 | 팀원A (유민) | 대기 |
-| 0 시작 / 4 지원 정보 / 5 내 정보 | 팀원B (은빈) | 대기 |
-| React Router · 인증 라우트 | 팀원B (은빈) | 대기 |
+| 공통 컴포넌트 · 디자인 토큰 · 모바일 레이아웃 | 팀원A (유민) | 완료 (PR #3, #7) |
+| 2 100일 목표 — 목표 설정(2-1·2-2) | 팀원A (유민) | 완료 (PR #4, #7) |
+| 3 비공개 메모장 | 팀원A (유민) | 완료 (PR #8) |
+| 1 홈 | 팀원A (유민) | 대기 (다음 작업: `feat/home-dashboard`) |
+| 0 시작 / 4 지원 정보 / 5 내 정보 | 팀원B (은빈) | 대기 (placeholder 페이지만 있음) |
+| React Router | 팀원B (은빈) | 완료 (PR #5, 레이아웃 그룹은 PR #7) |
+| 인증 라우트 | 팀원B (은빈) | 대기 |
 
 ---
 
@@ -103,9 +106,11 @@
 | `Header` | 공통 헤더 / 공통 헤더(ver.이전) | `showBack`, `onBack`, `right` |
 | `BottomNav` | 하단 내비게이션 (4개 탭) | `active?: home \| memo \| support \| my`, `onNavigate?` |
 | `BottomActionArea` | 하단 액션 영역 | `children`, `helperText` |
+| `TextButton` | 밑줄 링크 (목표 수정하기 / 계획 수정하기 등) | 기본 button 속성 |
+| `WeeklyPlanList` | 주간 계획 확인 영역 (2-2, 1-1 이번 4주 계획) | `plans: WeeklyPlan[]` (4주차는 `4주차 이후`로 표시) |
 | `MobileLayout` | (레이아웃) | `header?`, `bottom?`, `children` |
 
-`BottomNav`의 각 탭 경로는 은빈님의 라우터 경로가 정해지면 연결한다. 지금은 `onNavigate` 콜백으로 받는다.
+`BottomNav`의 탭 ↔ 경로 연결은 `TabLayout`(`src/layouts/TabLayout.tsx`)에서 `PATHS`로 처리한다 (PR #7).
 
 ---
 
