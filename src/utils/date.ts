@@ -1,5 +1,10 @@
 const pad = (value: number) => String(value).padStart(2, '0');
 
+/** 기기 시간 기준 오늘 날짜: 2026-11-11 (DailyRecord.date, ConditionLog.date 형식) */
+export function todayKey(now = new Date()) {
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
 /** 메모 카드용: 11.09 | 18:30 */
 export function formatMonthDayTime(iso: string) {
   const date = new Date(iso);

@@ -1,4 +1,4 @@
-import type { DailyRecord, Goal, Memo } from '../types';
+import type { ConditionLog, DailyRecord, Goal, Memo, Profile } from '../types';
 
 /**
  * Supabase 연동 전 임시 목업 데이터.
@@ -24,6 +24,12 @@ export const mockDailyRecords: DailyRecord[] = [
   { goalId: 'goal-1', date: '2026-11-08', todayGoal: '아침 9시 기상', status: 'rest' },
   { goalId: 'goal-1', date: '2026-11-09', todayGoal: '아침 9시 기상', status: 'done', feedback: 'okay' },
 ];
+
+/** 닉네임 — 초기 설정(팀원B)과 프로필 API가 정해지기 전까지 Figma 예시 값 사용 */
+export const mockProfile: Profile = { nickname: '구름' };
+
+/** 오늘의 컨디션 — 컨디션 체크 화면(팀원B)의 저장과 연결되기 전까지 임시 (getTodayCondition 참고) */
+export const mockTodayCondition: ConditionLog['condition'] = 'good';
 
 export const mockMemos: Memo[] = [
   {

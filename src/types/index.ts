@@ -37,6 +37,11 @@ export type DailyRecord = {
   feedback?: 'okay' | 'burden';
 };
 
+/** 홈 타이틀용 사용자 정보 (초기 설정·프로필 API가 정해지면 맞춘다) */
+export type Profile = {
+  nickname: string;
+};
+
 export type Memo = {
   id: string;
   content: string;
