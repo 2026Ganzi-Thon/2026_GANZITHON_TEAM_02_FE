@@ -8,24 +8,37 @@ type GoalEditModalProps = {
   title: string;
   onClose: () => void;
   onSave: (title: string) => void;
+  /** 팝업 제목. 홈의 '오늘 목표 수정 팝업'(180:12044)은 '오늘의 목표 수정하기' */
+  heading?: string;
+  /** 입력 필드의 접근성 이름 */
+  inputLabel?: string;
 };
 
-/** Figma '목표 수정 팝업' (180:10881) */
-export function GoalEditModal({ open, title, onClose, onSave }: GoalEditModalProps) {
+/** Figma '목표 수정 팝업' (180:10881) — 홈 '오늘 목표 수정 팝업'(180:12044)과 같은 형태 */
+export function GoalEditModal({
+  open,
+  title,
+  onClose,
+  onSave,
+  heading = '목표 수정하기',
+  inputLabel = '100일 목표',
+}: GoalEditModalProps) {
   return (
-    <Modal open={open} onClose={onClose} title="목표 수정하기" description="내가 바라는 변화에 맞게 고쳐주세요.">
+    <Modal open={open} onClose={onClose} title={heading} description="내가 바라는 변화에 맞게 고쳐주세요.">
       {/* 열 때마다 새로 마운트해서 입력값을 현재 목표로 초기화한다 */}
-      {open && <GoalEditForm initialTitle={title} onClose={onClose} onSave={onSave} />}
+      {open && <GoalEditForm initialTitle={title} inputLabel={inputLabel} onClose={onClose} onSave={onSave} />}
     </Modal>
   );
 }
 
 function GoalEditForm({
   initialTitle,
+  inputLabel,
   onClose,
   onSave,
 }: {
   initialTitle: string;
+  inputLabel: string;
   onClose: () => void;
   onSave: (title: string) => void;
 }) {
@@ -36,7 +49,7 @@ function GoalEditForm({
     <>
       <TextField
         tone="default"
-        aria-label="100일 목표"
+        aria-label={inputLabel}
         placeholder="예) 나에게 맞는 생활 리듬 만들기"
         value={value}
         onChange={(event) => setValue(event.target.value)}
