@@ -43,6 +43,7 @@ Claude Code가 이 저장소에서 작업할 때 가장 먼저 읽는 파일입�
 - **기존 공통 컴포넌트와 목업 구조를 먼저 재사용한다.** 새로 만들기 전에 `src/components`, `src/layouts`, `src/api`를 확인한다.
   - 버튼 → `Button`, 입력 → `TextField`/`TextArea`, 선택지 → `Chip`, 팝업 → `Modal` + `ModalActions`, 화면 틀 → `MobileLayout` + `Header` + `BottomNav`/`BottomActionArea`, 제목 → `PageTitle`
   - 디자인 확정(2026-11-10): 하단 내비는 **홈/메모/지원/내 정보 4개 탭**, 팝업은 **X 버튼 없이 하단 `취소` 버튼**으로 닫는다.
+- **라우팅·레이아웃 (2026-11-11 합의)**: 탭 화면(`/`, `/memos`, `/support`, `/mypage`)은 `TabLayout`이 Header + BottomNav를 그리므로 **페이지는 본문만** 그린다. 그 밖의 화면(`/goals`, 온보딩·로그인 등)은 **단독 화면**으로 페이지가 `MobileLayout`으로 자체 Header·하단 CTA를 그린다. 새 페이지는 `AGENTS.md` 4장 규칙대로 그룹을 먼저 정하고, 경로는 `src/routes/paths.ts`의 `PATHS`를 쓴다.
 - 색상·글자 크기는 토큰 클래스만 쓴다 (`bg-primary`, `text-text-main`, `text-caption`, `rounded-card` …). hex 값 직접 사용 금지.
 - 화면은 `src/mocks`를 직접 import하지 않고 **`src/api` 함수만 호출**한다. 새 데이터가 필요하면 `src/types` → `src/mocks` → `src/api` 순으로 추가한다.
 - 전역 CSS 규칙은 `global.css`의 `@layer base` 안에 둔다. (레이어 밖에 두면 Tailwind 유틸리티를 덮어써서 `text-*` 등이 무시됨)
@@ -56,7 +57,7 @@ Claude Code가 이 저장소에서 작업할 때 가장 먼저 읽는 파일입�
 | 팀원A (유민) — 이 저장소의 Claude Code 사용자 | 홈, 100일 목표, 비공개 메모장, 공통 컴포넌트·디자인 토큰·모바일 레이아웃 |
 | 팀원B (은빈) | 시작(컨디션·온보딩·도움 선택·로그인·초기설정), 지원 정보, 내 정보, **React Router·인증 라우트** |
 
-- **`src/App.tsx`, 라우터, 인증 관련 파일은 수정하지 않는다** (팀원B 담당).
+- **`src/App.tsx`, 라우터, 인증 관련 파일은 수정하지 않는다** (팀원B 담당). 예외: 2026-11-11 레이아웃 그룹 분리(`AppRouter.tsx`, `TabLayout`, `paths.ts`)는 팀 합의로 팀원A가 작업함 → 이후 변경도 팀원B와 공유.
 - 팀원B 영역 화면을 만들거나 고쳐야 하면 먼저 사용자에게 확인한다.
 - 공통 컴포넌트를 바꿀 때는 Props를 깨지 않게(추가만) 하고, 바꾼 내용을 PR에 적는다.
 

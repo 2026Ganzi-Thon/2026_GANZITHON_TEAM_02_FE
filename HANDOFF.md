@@ -146,6 +146,9 @@ npm run lint       # eslint
 |---|---|---|
 | 하단 내비 탭 | **4개: 홈 / 메모 / 지원 / 내 정보**. 1-1·1-2·3-1·4-1·5-1 모두 4개 탭. 5개 탭은 Section 1의 이전 시안(2-2 목표 대시보드)에만 남아 있음 | `BottomNav` 4개 고정 |
 | 팝업 닫기 방식 | **X 버튼 없이 하단 `취소` 버튼** (Figma ver1). 최신 팝업 6종(목표·오늘 목표·주간 계획·NEW NOTE·메모 상세) 모두 같은 형태 | `Modal` X 제거, `ModalActions` 취소 필수 |
+| 라우트 경로 (11-11, 팀원B) | `/` 홈, `/goals` 목표, `/memos` 메모, `/support` 상담·기관 목록, `/mypage` 내 정보 + `/onboarding`, `/login`, `/signup` | PR #5 `AppRouter.tsx` |
+| 레이아웃 그룹 (11-11 확정) | 공통 Header + BottomNav는 `/`, `/memos`, `/support`, `/mypage`에만. `/goals` 등은 단독 화면(자체 Header·하단 CTA) | `feat/layout-routing`: `TabLayout`, `paths.ts`, `AppRouter.tsx` 그룹 분리, `/goals` 연결 |
+| 미사용 CSS (11-11, 팀원B) | `index.css`, `App.css` 삭제 | PR #6 |
 
 미정 (확정 금지)
 
@@ -158,7 +161,6 @@ npm run lint       # eslint
 | 백엔드 스키마·API | BE 저장소 비어 있음, `src/types`는 프론트 초안 | 백엔드 |
 | Supabase 연동 방식 | 프론트 직접 호출 vs 백엔드 API 경유 미정, `supabase-js` 미설치 | 백엔드·프론트 |
 | AI 주간 계획 생성 담당 | 미정 (프론트에서 AI 키 사용 금지) | 팀 |
-| 라우트 경로 | 팀원B 작업 전 → `BottomNav`는 `onNavigate` 콜백만 제공 | 팀원B |
 | 메모 잠금·암호화 (PRD Should) | 해커톤 범위 미정 | 팀 |
 
 ## 9. 주의해야 할 사항
@@ -168,7 +170,7 @@ npm run lint       # eslint
 - 기존 브랜치·커밋 유지. commit / push / PR / merge는 사용자가 요청할 때만.
 - `global.css`를 수정할 때 새 전역 규칙은 반드시 `@layer base` 안에 넣는다.
 - `.gitignore`에 `.env`가 없다 (`*.local`만 있음) → 환경변수 파일은 `.env.local`로 만들거나 팀과 `.gitignore` 수정 합의.
-- `index.css`(Vite 템플릿)는 import되지 않으며 `@import "tailwindcss"`가 남아 있음 — 정리는 팀원B와 합의 후.
+- 탭 화면 페이지(`/`, `/memos`, `/support`, `/mypage`)는 본문만 그린다. 여기에 `MobileLayout`·`Header`를 또 쓰면 헤더가 2개가 되고, 단독 화면을 탭 그룹에 넣으면 하단 CTA가 내비에 가려진다 (11-11에 실제로 발생 → 그룹 분리로 해결).
 - Figma 에셋 URL(figma.com)은 이 환경에서 다운로드가 막혀 있었음 → 아이콘은 Figma가 사용한 Iconify 아이콘과 같은 path로 구현, 로고는 `public/sheep.png` 사용.
 - 미리보기 스크린샷 확인 시 폰트 CDN이 막힌 환경이면 대체 폰트로 보임 (실제 브라우저에서는 Pretendard).
 
@@ -177,10 +179,10 @@ npm run lint       # eslint
 
 ## 10. 다음 개발 단계 (우선순위)
 
-1. **PR #2·#3 마무리** — 이번 수정 커밋 push(두 브랜치), 은빈님 리뷰어 지정, PR #3 본문에 디자인 확정 반영 내용·미리보기 스크린샷 추가 → 리뷰 후 함께 Squash Merge.
-2. **팀 확인 요청** — 목표 기록 방식(8장) / 팀원B에게 `global.css` `@layer base`·라우트 경로·`index.css` 정리 / 백엔드에 `src/types` 초안 공유.
-3. **`feat/goal-setting`** — 2-1 목표 설정 → 2-2 주간 계획 확인 + 목표·주간 계획 수정 팝업 (`requestWeeklyPlanDraft`, `saveGoal`) — PRD Must
-4. **`feat/home-dashboard`** — 1-1/1-2 홈: 컨디션 카드, 오늘의 목표, 실천/쉬어가기, 오늘 목표 성공 팝업 (`saveDailyRecord`) — Must. 양털판(100칸)·4주 계획은 Should
-5. **`feat/memo`** — 3-1 메모 목록 + 작성·상세·삭제 팝업 (`memo` API) — Must, 수정은 Should
-6. 라우터가 들어오면 각 페이지를 연결하고 `BottomNav` `onNavigate`에 경로 매핑
-7. 백엔드 스키마 확정 후 `src/types` 조정 → `src/api` 내부를 Supabase 호출로 교체
+(2026-11-11 기준) PR #2·#3 머지 완료. 열린 PR: #6 리뷰 반영, #5 라우터, #4 목표 설정. 로컬 준비: `feat/memo`, `feat/layout-routing`.
+
+1. **머지 순서** — #6(팝업 버그·CSS) → #5(라우터) → #4(목표 설정) → `feat/layout-routing`(레이아웃 그룹·/goals 연결) → `feat/memo`. 모두 Squash merge. 서로 충돌 없음 확인.
+2. **`feat/memo` → `/memos` 연결** — `MemosPage`가 `MemoPage`(본문만)를 그리도록 연결 (탭 화면이라 레이아웃 추가 금지).
+3. **`feat/home-dashboard`** — 1-1/1-2 홈: 컨디션 카드, 오늘의 목표, 실천/쉬어가기, 오늘 목표 성공 팝업 (`saveDailyRecord`) — Must. 탭 화면이므로 본문만. 양털판(100칸)·4주 계획은 Should
+4. **팀 확인 요청** — 목표 기록 방식(8장), 메모 삭제 확인 단계·빈 목록 문구, 백엔드에 `src/types` 초안 공유.
+5. 백엔드 스키마 확정 후 `src/types` 조정 → `src/api` 내부를 Supabase 호출로 교체

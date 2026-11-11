@@ -47,7 +47,8 @@ src
  ┣ assets      # 이미지, 아이콘
  ┣ components  # 재사용 공통 UI (Button, Input, Modal ...)
  ┣ hooks       # 커스텀 훅
- ┣ layouts     # 모바일 컨테이너, 헤더+하단 내비 레이아웃
+ ┣ layouts     # MobileLayout(모바일 틀), TabLayout(공통 Header + 하단 내비)
+ ┣ routes      # AppRouter(라우트·레이아웃 그룹), paths(경로 상수)
  ┣ pages       # 페이지 단위 컴포넌트
  ┣ styles      # 전역 CSS, 디자인 토큰
  ┣ types       # 도메인 타입 (Goal, Memo, Condition ...)
@@ -60,6 +61,19 @@ src
 루트의 `preview.html`은 미리보기 진입점이며 배포 빌드(`index.html`)에는 포함되지 않는다.
 
 사용하지 않는 폴더는 미리 만들지 않는다.
+
+### 라우팅 · 레이아웃 규칙 (2026-11-11 확정)
+
+모든 페이지는 아래 두 그룹 중 **하나에만** 속한다. 새 페이지를 만들 때 `src/routes/AppRouter.tsx`에서 그룹을 먼저 정한다.
+
+| 그룹 | 레이아웃 | 경로 | 페이지가 할 일 |
+|---|---|---|---|
+| 탭 화면 | `TabLayout` (공통 Header + BottomNav) | `/`, `/memos`, `/support`, `/mypage` | **본문만** 그린다. `MobileLayout`·`Header`·`BottomNav`를 직접 쓰지 않는다 |
+| 단독 화면 | 없음 | `/goals`, `/onboarding`, `/login`, `/signup`, 404 | `MobileLayout`으로 자체 Header와 하단 CTA(`BottomActionArea`)를 직접 그린다 |
+
+- 기준: **Figma에서 하단 내비가 보이는 화면만 탭 화면**이다. 그 밖의 화면은 모두 단독 화면.
+- 경로는 문자열 대신 `src/routes/paths.ts`의 `PATHS`를 쓴다 (`navigate(PATHS.home)`).
+- 하단 내비 탭 ↔ 경로 연결은 `TabLayout`에서만 관리한다.
 
 ## 5. 데이터 접근 규칙 (목업 → Supabase 전환 대비)
 
