@@ -13,7 +13,7 @@ export function Chip({ selected = false, size = 'md', type = 'button', className
       type={type}
       aria-pressed={selected}
       className={cn(
-        'inline-flex items-center justify-center rounded-chip border px-4 text-caption transition-colors',
+        'inline-flex items-center justify-center rounded-chip border px-4 text-caption whitespace-nowrap transition-colors',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-pressed',
         size === 'md' ? 'h-[42px]' : 'h-10',
         selected
