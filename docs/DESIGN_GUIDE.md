@@ -27,6 +27,8 @@
 | Border | `#E6DCD1` | `border` | 기본 테두리, 구분선 |
 | Text/Main | `#332C29` | `text-main` | 본문·제목 |
 | Text/Sub | `#75665E` | `text-sub` | 설명, placeholder, 비활성 탭 |
+| (Figma 변수 없음) | `#F4EFE6` | `surface-muted` | 메모 영역 배경 (3-1 비공개 메모장) |
+| (Figma 변수 없음) | `#594039` | `sheep` | 양 얼굴·다리 (메모 카드) |
 
 사용 예: `bg-primary`, `text-text-main`, `border-border`, `bg-surface-warm`
 
