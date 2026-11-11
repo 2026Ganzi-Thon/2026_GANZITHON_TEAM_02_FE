@@ -9,7 +9,8 @@ import type { ConditionLog, DailyRecord, Goal, Memo, Profile } from '../types';
 export const mockGoal: Goal = {
   id: 'goal-1',
   title: '나에게 맞는 생활 리듬 만들기',
-  description: '일정한 시간에 일어나고, 짧게라도 공부하는 일상을 만들어요.',
+  // Figma 2-2·1-1처럼 쉼표 뒤에서 줄을 바꾼다 (화면은 whitespace-pre-line으로 \n을 줄바꿈으로 표시)
+  description: '일정한 시간에 일어나고,\n짧게라도 공부하는 일상을 만들어요.',
   startDate: '2026-10-01',
   weeklyPlans: [
     { week: 1, theme: '습관 만들기', task: '아침 9시 기상' },

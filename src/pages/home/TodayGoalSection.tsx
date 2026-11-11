@@ -27,7 +27,7 @@ export function TodayGoalSection({ title, description, status, saving, onEdit, o
 
       <div className="flex flex-col gap-2 rounded-card border border-primary-pressed bg-surface-warm px-6 py-4">
         <p className="text-section text-text-main">{title}</p>
-        <p className="break-keep text-caption text-text-sub">{description}</p>
+        <p className="break-keep text-caption whitespace-pre-line text-text-sub">{description}</p>
       </div>
 
       {status === 'none' && (

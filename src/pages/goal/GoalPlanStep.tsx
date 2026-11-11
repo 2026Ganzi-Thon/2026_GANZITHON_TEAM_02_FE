@@ -46,7 +46,7 @@ export function GoalPlanStep({ draft, onChange, saving, onStart }: GoalPlanStepP
         <h2 className="text-section text-text-main">100일 동안 만들어갈 변화</h2>
         <div className="flex flex-col gap-2 rounded-card border border-primary-pressed bg-surface-warm px-6 py-4">
           <p className="text-section text-text-main">{draft.title}</p>
-          <p className="text-caption text-text-sub">{draft.description}</p>
+          <p className="text-caption whitespace-pre-line text-text-sub">{draft.description}</p>
           <TextButton onClick={() => setModal('goal')}>목표 수정하기</TextButton>
         </div>
       </section>
