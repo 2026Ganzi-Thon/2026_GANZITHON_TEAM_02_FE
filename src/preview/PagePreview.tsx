@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { Button } from '../components/Button';
+import { BottomNav } from '../components/BottomNav';
+import { Header } from '../components/Header';
 import { PageTitle } from '../components/PageTitle';
 import { MobileLayout } from '../layouts/MobileLayout';
 import { GoalSettingPage } from '../pages/goal/GoalSettingPage';
+import { MemoPage } from '../pages/memo/MemoPage';
 
 /**
  * 페이지 확인용 미리보기 (개발 전용, /preview.html?page=...).
@@ -12,10 +15,19 @@ export function PagePreview({ page }: { page: string }) {
   const [round, setRound] = useState(0);
   const [completed, setCompleted] = useState(false);
 
+  if (page === 'memo') {
+    // 라우터 레이아웃(헤더 + 하단 내비)을 흉내 내서 감싼다
+    return (
+      <MobileLayout header={<Header />} bottom={<BottomNav active="memo" />}>
+        <MemoPage />
+      </MobileLayout>
+    );
+  }
+
   if (page !== 'goal-setting') {
     return (
       <MobileLayout>
-        <PageTitle title="없는 미리보기 페이지예요" description="사용 가능: ?page=goal-setting" />
+        <PageTitle title="없는 미리보기 페이지예요" description="사용 가능: ?page=goal-setting, ?page=memo" />
       </MobileLayout>
     );
   }
