@@ -11,6 +11,9 @@
   --color-border: #e6dcd1;
   --color-text-main: #332c29;
   --color-text-sub: #75665e;
+  /* Figma 변수에는 없고 화면에서만 쓰이는 색 (3-1 비공개 메모장) */
+  --color-surface-muted: #f4efe6; /* 메모 영역 배경 */
+  --color-sheep: #594039; /* 양 얼굴·다리 */
 
   --font-sans: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
