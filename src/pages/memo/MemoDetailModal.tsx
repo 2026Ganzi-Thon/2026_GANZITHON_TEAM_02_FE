@@ -47,7 +47,7 @@ function MemoDetailForm({ memo, busy, onClose, onSave, onDelete }: Omit<MemoDeta
         />
       </div>
       <SheepShape tone="beige" className="mx-auto mt-4 h-[57px] w-[114px]" />
-      <div className="pt-4 text-right">
+      <div className="pt-6 text-right">
         <button
           type="button"
           onClick={() => onDelete(memo.id)}

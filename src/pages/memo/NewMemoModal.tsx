@@ -32,7 +32,7 @@ function NewMemoForm({ saving, onClose, onSave }: Omit<NewMemoModalProps, 'open'
         value={content}
         onChange={(event) => setContent(event.target.value)}
       />
-      <div className="pt-4">
+      <div className="pt-6">
         <ModalActions
           confirmLabel="저장하기"
           onCancel={onClose}
