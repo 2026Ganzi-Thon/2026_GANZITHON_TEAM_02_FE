@@ -54,7 +54,7 @@ function GoalEditForm({
         value={value}
         onChange={(event) => setValue(event.target.value)}
       />
-      <div className="pt-4">
+      <div className="pt-6">
         <ModalActions onCancel={onClose} onConfirm={() => onSave(trimmed)} confirmDisabled={!trimmed} />
       </div>
     </>

@@ -75,7 +75,7 @@ export function Modal({
         </h2>
         {description && <p className="text-caption text-text-sub">{description}</p>}
         {children}
-        {footer && <div className="pt-4">{footer}</div>}
+        {footer && <div className="pt-6">{footer}</div>}
       </div>
     </div>,
     document.body,

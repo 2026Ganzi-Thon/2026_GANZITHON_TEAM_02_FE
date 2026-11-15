@@ -36,7 +36,12 @@ export function GoalInputStep({ initialTitle = '', loading, onSubmit }: GoalInpu
       />
       <div className="px-10 pb-8">
         <TextField
-          label="100일 동안 이어가고 싶은 목표"
+          label={
+            <>
+              100일 동안 이어가고 싶은 목표 <span className="text-primary-pressed" aria-hidden>*</span>
+            </>
+          }
+          aria-required
           placeholder="예) 구름"
           value={title}
           onChange={(event) => setTitle(event.target.value)}

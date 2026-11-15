@@ -1,9 +1,9 @@
-import { useId, type InputHTMLAttributes } from 'react';
+import { useId, type InputHTMLAttributes, type ReactNode } from 'react';
 import { cn } from '../utils/cn';
 
 type TextFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> & {
   /** 입력 필드 위 제목 (예: 100일 동안 이어가고 싶은 목표) */
-  label?: string;
+  label?: ReactNode;
   /** emphasis: 페이지 입력(빨간 테두리) / default: 팝업 입력(베이지 테두리) */
   tone?: 'emphasis' | 'default';
 };
@@ -13,7 +13,7 @@ export function TextField({ label, tone = 'emphasis', id, className, ...rest }: 
   const inputId = id ?? autoId;
 
   return (
-    <div className="flex w-full flex-col gap-4">
+    <div className="flex w-full flex-col gap-2">
       {label && (
         <label htmlFor={inputId} className="text-section text-text-main">
           {label}

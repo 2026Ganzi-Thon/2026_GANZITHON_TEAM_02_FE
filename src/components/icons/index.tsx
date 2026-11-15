@@ -6,7 +6,8 @@ import type { SVGProps } from 'react';
  * - home: arcticons:home-smart
  * - memo: arcticons:youdao-note / search: arcticons:emoji-search
  * - user: bxs:user / back: grommet-icons:previous
- * viewBox는 Figma 에셋처럼 아이콘 실제 영역에 맞춰 잘라 두었다.
+ * viewBox는 Iconify 원본(48×48, bxs는 24×24) 그대로 둔다. Figma도 원본 여백을 포함한 크기로 배치해서
+ * 잘라내면 아이콘이 Figma보다 약 1.3배 크게 보인다 (2026-11-16 Figma 대조).
  */
 type IconProps = SVGProps<SVGSVGElement>;
 
@@ -22,7 +23,7 @@ const outline = {
 export function HomeIcon(props: IconProps) {
   // Figma 프레임 크기(40×23.4) 그대로, 아이콘은 비율 유지
   return (
-    <svg width={40} height={23.446} viewBox="3.5 5.554 41 36.892" aria-hidden {...props}>
+    <svg width={40} height={23.446} viewBox="0 0 48 48" aria-hidden {...props}>
       <path {...outline} d="M43.5 21.446L24 6.554L4.5 21.446v20h39z" />
     </svg>
   );
@@ -31,7 +32,7 @@ export function HomeIcon(props: IconProps) {
 
 export function MemoIcon(props: IconProps) {
   return (
-    <svg width={24} height={24} viewBox="4.5 4.5 39 39" aria-hidden {...props}>
+    <svg width={24} height={24} viewBox="0 0 48 48" aria-hidden {...props}>
       <path {...outline} d="m22.82 42.241l19.522-19.884l-16.87-16.63L5.707 25.37l-.05 16.903Z" />
     </svg>
   );
@@ -50,7 +51,7 @@ export function SearchIcon(props: IconProps) {
 
 export function UserIcon(props: IconProps) {
   return (
-    <svg width={24} height={24} viewBox="2.5 2 19 19" aria-hidden {...props}>
+    <svg width={24} height={24} viewBox="0 0 24 24" aria-hidden {...props}>
       <path
         fill="currentColor"
         d="M7.5 6.5C7.5 8.981 9.519 11 12 11s4.5-2.019 4.5-4.5S14.481 2 12 2S7.5 4.019 7.5 6.5M20 21h1v-1c0-3.859-3.141-7-7-7h-4c-3.86 0-7 3.141-7 7v1z"

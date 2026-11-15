@@ -54,7 +54,7 @@ function WeeklyPlanEditForm({
           />
         </div>
       ))}
-      <div className="pt-4">
+      <div className="pt-6">
         <ModalActions onCancel={onClose} onConfirm={handleSave} confirmDisabled={hasEmpty} />
       </div>
     </>
