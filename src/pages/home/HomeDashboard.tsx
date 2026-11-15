@@ -66,6 +66,7 @@ export function HomeDashboard() {
   const { profile, condition, goal, records } = data;
   const today = todayKey();
   const todayRecord = records.find((record) => record.date === today) ?? null;
+  const sheepDays = goal ? buildSheepDays(goal.startDate, records, today) : [];
   const status = todayRecord?.status ?? 'none';
   const todayGoal = todayRecord?.todayGoal || goal?.title || '';
   const showCondition = condition && condition.condition !== 'skipped' ? condition.condition : null;
@@ -124,10 +125,7 @@ export function HomeDashboard() {
           />
           <SectionDivider />
 
-          <SheepProgressSection
-            dayNumber={getDayNumber(goal.startDate, today)}
-            days={buildSheepDays(goal.startDate, records, today)}
-          />
+          <SheepProgressSection dayNumber={getDayNumber(goal.startDate, today)} days={sheepDays} />
           <SectionDivider />
 
           <section className="flex flex-col gap-2 px-10 py-8">
@@ -160,6 +158,7 @@ export function HomeDashboard() {
       />
       <GoalSuccessModal
         open={modal === 'success'}
+        days={sheepDays}
         feedback={todayRecord?.feedback}
         onFeedbackChange={(feedback) => saveRecord({ feedback })}
         onClose={() => setModal(null)}

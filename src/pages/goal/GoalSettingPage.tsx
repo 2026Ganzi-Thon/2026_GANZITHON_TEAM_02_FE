@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { requestWeeklyPlanDraft, saveGoal } from '../../api/goal';
+import { createGoal, requestWeeklyPlanDraft } from '../../api/goal';
 import type { Goal } from '../../types';
 import { GoalInputStep } from './GoalInputStep';
 import { GoalPlanStep, type GoalDraft } from './GoalPlanStep';
@@ -32,7 +32,7 @@ export function GoalSettingPage({ onComplete }: GoalSettingPageProps) {
     if (!draft) return;
     setSaving(true);
     try {
-      const goal = await saveGoal(draft);
+      const goal = await createGoal(draft);
       onComplete?.(goal);
     } finally {
       setSaving(false);
