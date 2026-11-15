@@ -14,13 +14,15 @@ import { GoalEditModal } from '../goal/GoalEditModal';
 import { WeeklyPlanEditModal } from '../goal/WeeklyPlanEditModal';
 import { ConditionCard } from './ConditionCard';
 import { GoalSuccessModal } from './GoalSuccessModal';
+import { SheepProgressSection } from './SheepProgressSection';
+import { buildSheepDays, getDayNumber } from './sheepDays';
 import { TodayGoalSection } from './TodayGoalSection';
 
 type HomeData = {
   profile: Profile;
   condition: ConditionLog | null;
   goal: Goal | null;
-  todayRecord: DailyRecord | null;
+  records: DailyRecord[];
 };
 
 type ModalKey = 'todayGoal' | 'success' | 'weeklyPlan';
@@ -50,8 +52,7 @@ export function HomeDashboard() {
     (async () => {
       const [profile, condition, goal] = await Promise.all([getProfile(), getTodayCondition(), getGoal()]);
       const records = goal ? await getDailyRecords(goal.id) : [];
-      const todayRecord = records.find((record) => record.date === todayKey()) ?? null;
-      if (active) setData({ profile, condition, goal, todayRecord });
+      if (active) setData({ profile, condition, goal, records });
     })();
     return () => {
       active = false;
@@ -62,7 +63,9 @@ export function HomeDashboard() {
     return <p className="px-10 py-8 text-caption text-text-sub">불러오는 중...</p>;
   }
 
-  const { profile, condition, goal, todayRecord } = data;
+  const { profile, condition, goal, records } = data;
+  const today = todayKey();
+  const todayRecord = records.find((record) => record.date === today) ?? null;
   const status = todayRecord?.status ?? 'none';
   const todayGoal = todayRecord?.todayGoal || goal?.title || '';
   const showCondition = condition && condition.condition !== 'skipped' ? condition.condition : null;
@@ -73,13 +76,15 @@ export function HomeDashboard() {
     try {
       const saved = await saveDailyRecord({
         goalId: goal.id,
-        date: todayKey(),
+        date: today,
         todayGoal,
         status,
         feedback: todayRecord?.feedback,
         ...patch,
       });
-      setData((prev) => (prev ? { ...prev, todayRecord: saved } : prev));
+      setData((prev) =>
+        prev ? { ...prev, records: [...prev.records.filter((record) => record.date !== saved.date), saved] } : prev,
+      );
       return saved;
     } finally {
       setSaving(false);
@@ -119,7 +124,11 @@ export function HomeDashboard() {
           />
           <SectionDivider />
 
-          {/* Should: 한 칸씩 내 속도로(100칸 양털판 + N일 째)는 아직 미구현 */}
+          <SheepProgressSection
+            dayNumber={getDayNumber(goal.startDate, today)}
+            days={buildSheepDays(goal.startDate, records, today)}
+          />
+          <SectionDivider />
 
           <section className="flex flex-col gap-2 px-10 py-8">
             <h2 className="text-section text-text-main">이번 4주 계획</h2>
