@@ -1,4 +1,4 @@
-import type { DailyRecord, Goal, Memo } from '../types';
+import type { ConditionLog, DailyRecord, Goal, Memo, Profile } from '../types';
 
 /**
  * Supabase 연동 전 임시 목업 데이터.
@@ -9,7 +9,8 @@ import type { DailyRecord, Goal, Memo } from '../types';
 export const mockGoal: Goal = {
   id: 'goal-1',
   title: '나에게 맞는 생활 리듬 만들기',
-  description: '일정한 시간에 일어나고, 짧게라도 공부하는 일상을 만들어요.',
+  // Figma 2-2·1-1처럼 쉼표 뒤에서 줄을 바꾼다 (화면은 whitespace-pre-line으로 \n을 줄바꿈으로 표시)
+  description: '일정한 시간에 일어나고,\n짧게라도 공부하는 일상을 만들어요.',
   startDate: '2026-10-01',
   weeklyPlans: [
     { week: 1, theme: '습관 만들기', task: '아침 9시 기상' },
@@ -24,6 +25,12 @@ export const mockDailyRecords: DailyRecord[] = [
   { goalId: 'goal-1', date: '2026-11-08', todayGoal: '아침 9시 기상', status: 'rest' },
   { goalId: 'goal-1', date: '2026-11-09', todayGoal: '아침 9시 기상', status: 'done', feedback: 'okay' },
 ];
+
+/** 닉네임 — 초기 설정(팀원B)과 프로필 API가 정해지기 전까지 Figma 예시 값 사용 */
+export const mockProfile: Profile = { nickname: '구름' };
+
+/** 오늘의 컨디션 — 컨디션 체크 화면(팀원B)의 저장과 연결되기 전까지 임시 (getTodayCondition 참고) */
+export const mockTodayCondition: ConditionLog['condition'] = 'good';
 
 export const mockMemos: Memo[] = [
   {
