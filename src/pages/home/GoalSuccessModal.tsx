@@ -1,8 +1,9 @@
-import successSheep from '../../assets/home/success-sheep.svg';
 import { Button } from '../../components/Button';
 import { Chip } from '../../components/Chip';
 import { Modal } from '../../components/Modal';
 import type { DailyRecord } from '../../types';
+import { SheepBoard } from './SheepBoard';
+import type { SheepDay } from './sheepDays';
 
 type Feedback = NonNullable<DailyRecord['feedback']>;
 
@@ -13,6 +14,8 @@ const FEEDBACK_OPTIONS: { value: Feedback; label: string }[] = [
 
 type GoalSuccessModalProps = {
   open: boolean;
+  /** 홈 양털판과 같은 100칸 데이터 (방금 채운 오늘 칸 포함) */
+  days: SheepDay[];
   feedback?: Feedback;
   onFeedbackChange: (feedback: Feedback) => void;
   /** '대시보드로 돌아가기', 배경 클릭, Esc */
@@ -25,11 +28,18 @@ type GoalSuccessModalProps = {
  * Figma '오늘 목표 성공 팝업2' (159:3449).
  * 버튼이 하나인 팝업이라 ModalActions 대신 Button을 직접 둔다 (취소 버튼 없음, 배경 클릭·Esc로도 닫힘).
  */
-export function GoalSuccessModal({ open, feedback, onFeedbackChange, onClose, onUndo }: GoalSuccessModalProps) {
+export function GoalSuccessModal({ open, days, feedback, onFeedbackChange, onClose, onUndo }: GoalSuccessModalProps) {
   return (
-    <Modal open={open} onClose={onClose} title="오늘의 털 한 칸을 채웠어요!" description="작게 시작한 것도 내가 해낸 일이에요.">
-      {/* TODO(Should): 양털판(100칸)을 실제 기록으로 그리기 전까지 Figma 이미지를 그대로 사용 */}
-      <img src={successSheep} alt="" width={276} height={228} className="mx-auto h-[228px] w-[276px] max-w-full" />
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="오늘의 털 한 칸을 채웠어요!"
+      description="작게 시작한 것도 내가 해낸 일이에요."
+      // Figma 159:3449: 위아래 27px·좌우 22px. 줄 높이 차이 2px만큼 위아래를 1px씩 줄여 높이 542px에 맞춤
+      paddingClassName="px-[22px] py-[26px]"
+    >
+      {/* Figma는 예시 상태 이미지라, 홈과 같은 실제 기록으로 그린다 (276×228) */}
+      <SheepBoard days={days} className="mx-auto max-w-[276px]" />
 
       <p className="flex items-baseline gap-1">
         <span className="text-section text-text-main">해보니 어땠나요?</span>

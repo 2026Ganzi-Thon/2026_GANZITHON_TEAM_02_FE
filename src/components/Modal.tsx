@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { cn } from '../utils/cn';
 import { Button } from './Button';
 
 type ModalProps = {
@@ -10,6 +11,8 @@ type ModalProps = {
   /** 팝업 하단 버튼 영역. 보통 <ModalActions /> */
   footer?: ReactNode;
   children?: ReactNode;
+  /** 팝업 틀 여백만 바꿀 때 (기본 'px-6 py-4'). 예: 성공 팝업은 Figma 기준 위아래가 더 넓다 */
+  paddingClassName?: string;
 };
 
 /**
@@ -17,7 +20,15 @@ type ModalProps = {
  * 2026-11-10 디자인 확정: X 버튼 없이 하단 '취소' 버튼으로 닫는다 (Figma ver1).
  * 배경 클릭·Esc로도 닫힌다.
  */
-export function Modal({ open, onClose, title, description, footer, children }: ModalProps) {
+export function Modal({
+  open,
+  onClose,
+  title,
+  description,
+  footer,
+  children,
+  paddingClassName = 'px-6 py-4',
+}: ModalProps) {
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
   // 부모가 다시 렌더링될 때마다 onClose가 새 함수가 되어도 아래 effect가 다시 돌지 않도록 ref로 보관한다.
@@ -54,7 +65,10 @@ export function Modal({ open, onClose, title, description, footer, children }: M
         aria-labelledby={titleId}
         tabIndex={-1}
         onClick={(event) => event.stopPropagation()}
-        className="relative flex w-full max-w-[322px] flex-col gap-2 rounded-card border border-primary-pressed bg-surface-warm px-6 py-4 text-left focus:outline-none"
+        className={cn(
+          'relative flex w-full max-w-[322px] flex-col gap-2 rounded-card border border-primary-pressed bg-surface-warm text-left focus:outline-none',
+          paddingClassName,
+        )}
       >
         <h2 id={titleId} className="text-section text-text-main">
           {title}
