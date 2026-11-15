@@ -30,7 +30,14 @@ type GoalSuccessModalProps = {
  */
 export function GoalSuccessModal({ open, days, feedback, onFeedbackChange, onClose, onUndo }: GoalSuccessModalProps) {
   return (
-    <Modal open={open} onClose={onClose} title="오늘의 털 한 칸을 채웠어요!" description="작게 시작한 것도 내가 해낸 일이에요.">
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="오늘의 털 한 칸을 채웠어요!"
+      description="작게 시작한 것도 내가 해낸 일이에요."
+      // Figma 159:3449: 위아래 27px·좌우 22px. 줄 높이 차이 2px만큼 위아래를 1px씩 줄여 높이 542px에 맞춤
+      paddingClassName="px-[22px] py-[26px]"
+    >
       {/* Figma는 예시 상태 이미지라, 홈과 같은 실제 기록으로 그린다 (276×228) */}
       <SheepBoard days={days} className="mx-auto max-w-[276px]" />
 
