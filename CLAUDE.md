@@ -69,6 +69,7 @@ Claude Code가 이 저장소에서 작업할 때 가장 먼저 읽는 파일입�
 - PR 제목: `[Type] 작업 내용`
 - `main`, `develop`에 직접 push 금지
 - **commit, push, PR 생성, merge는 사용자가 요청할 때만** 한다. 기존 브랜치·커밋을 지우거나 rebase/force-push 하지 않는다.
+- **PR 머지는 팀원 리뷰 승인 후에만** 한다 (README). 사용자가 머지를 요청해도 승인 여부를 먼저 확인하고, 승인이 없으면 멈추고 알린다.
 
 ## 8. Supabase · 백엔드 주의 사항
 
