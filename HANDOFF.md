@@ -4,6 +4,7 @@
 > 갱신: 2026-11-10 (KST) · Claude Code — GitHub·Notion·Figma 재확인 결과 반영 (서비스명 확정, 마감 일정, 브랜치 복원, 하단 내비)
 > 갱신: 2026-11-10 20:20 (KST) · Claude — push·PR 현황, 디자인 확정(하단 내비 4개 탭, 팝업 X 없이 취소 버튼) 반영
 > 갱신: 2026-11-11 (KST) · Claude Code — PR #2~#8 머지 완료 현황, 실제 `develop` 기준 컴포넌트·디렉터리, 미정 사항·다음 단계 반영
+> 갱신: 2026-11-16 (KST) · Claude Code — PR #10~#13 머지(홈 대시보드·양털판·Figma 차이 수정), 열린 PR #14(온보딩) 영향, 미정 사항·다음 단계 반영
 > 다음 Claude Code 세션이 이어서 작업할 수 있도록 현재 상태를 정리한 문서입니다.
 > 규칙은 `CLAUDE.md` / `AGENTS.md`, 상세 명세는 `docs/`를 참고하세요.
 
@@ -12,7 +13,7 @@
 - 2026 간지톤 [Ari-Thon] 2팀 프론트엔드 (`2026Ganzi-Thon/2026_GANZITHON_TEAM_02_FE`)
 - 학교 밖 청소년용 모바일 우선 웹앱: 컨디션 체크 → 컨디션에 맞춘 100일 작은 목표 → 지원 정보 연결 → 비공개 메모장
 - 스택: React 19 · TypeScript · Vite 8 · Tailwind CSS v4 · Node 26.8.2 / npm 11.19.1
-- 백엔드: 별도 팀, Supabase (BE 저장소는 2026-11-10 기준 비어 있음). 프론트는 목업 데이터로 개발
+- 백엔드: 별도 팀, Supabase. BE 저장소에 2026-11-16 `supabase/schema.sql`·README 추가됨 (8장 참고). 프론트는 아직 목업 데이터로 개발
 - 내 역할(팀원A·유민): 홈, 100일 목표, 비공개 메모장 + 공통 컴포넌트·디자인 토큰·모바일 레이아웃
 - 서비스명: **메에일** (2026-11-09 회의에서 확정)
 
@@ -36,7 +37,7 @@
 
 ## 2. 브랜치 · 커밋 현황
 
-**`develop` = `75785f4`** (2026-11-11 기준). 아래 PR이 모두 `develop`에 머지됨 (#3·#2는 merge commit, #4~#8은 Squash merge).
+**`develop` = `f3bcb35`** (2026-11-16 기준). 아래 PR이 모두 `develop`에 머지됨 (#2·#3·#10~#13은 merge commit, #4~#9는 Squash merge). #10~#13은 은빈님이 머지.
 
 | PR | 제목 | `develop` 커밋 |
 |---|---|---|
@@ -47,8 +48,24 @@
 | #4 | [Feat] 100일 목표 설정 화면 및 목표·주간 계획 수정 팝업 추가 | `0dc5391` |
 | #7 | [Refactor] 탭 화면·단독 화면 레이아웃 분리 및 /goals 연결 | `953284b` |
 | #8 | [Feat] 비공개 메모장 화면 및 메모 작성·상세·삭제 팝업 추가 | `75785f4` |
+| #9 | [Docs] 머지 완료 현황 및 문서 최신화 | `ed40724` |
+| #10 | [Feat] 홈 대시보드 및 오늘 목표 성공·수정 팝업 추가 | `00bdfaa` |
+| #11 | [Docs] 머지 규칙을 README 기준으로 바로잡음 | `dfcf8be` |
+| #12 | [Feat] 홈 '한 칸씩 내 속도로' 100칸 양털판 추가 | `6c82cc4` |
+| #13 | [Design] Figma와 다른 간격·아이콘 크기·필수 표시 맞춤 | `f3bcb35` |
 
-- **열린 PR은 #1뿐**: `develop` → `main` [Chore] Node.js, npm 버전 통일 및 Tailwind CSS 초기 설정 (팀원B) — 배포 직전까지 그대로 둔다.
+열린 PR
+
+| PR | 내용 | 상태 |
+|---|---|---|
+| #1 | `develop` → `main` [Chore] Node.js, npm 버전 통일 및 Tailwind CSS 초기 설정 (팀원B) | 배포 직전까지 그대로 둔다 |
+| #14 | [Feat] 온보딩 화면 구현 (팀원B, `feat/onboarding`, 11-16 생성) — 온보딩(인트로·컨디션·도움 선택) + 로그인·프로필 설정(카카오) 화면 | 리뷰 대기. 아래 '#14 영향' 참고 |
+
+#14가 팀원A 영역에 주는 영향 (머지되면 확인)
+- `package.json`: `@supabase/supabase-js`, `lucide-react` 추가 → 머지 후 `npm ci` 필요. `src/utils/supabase.ts`는 아직 빈 파일, `src/api/auth.ts`·`src/utils/authStorage.ts` 추가
+- 공통 `MobileLayout`: `<main>`이 `flex min-h-0 flex-1 flex-col`로 바뀜 → `/goals`(단독 화면) 간격이 달라지지 않는지 확인
+- `global.css`: 로고 폰트 토큰 `--font-logo`(BMKkubulim) 추가, `src/styles/fonts.css`에 Pretendard·BMKkubulim 로컬 폰트 등록 (`index.html`의 Pretendard CDN과 중복되는지 확인)
+- 컨디션 선택(`onboarding/ConditionStep.tsx`)이 생김 → 홈 컨디션 카드(`getTodayCondition`) 연결 대상
 - 새 작업은 항상 최신 `develop`에서 `feat/기능명` 브랜치를 새로 만든다.
 - 머지 방식: README대로 **팀원 리뷰 승인 + 테스트 후에만 Squash merge**. 승인 없는 머지는 하지 않는다 (예외 없음).
 - 참고: #5·#4·#7·#8·#9는 머지 범위를 잘못 이해해 리뷰 승인 전에 머지됨 → 은빈님께 사후 리뷰 요청. 지적 사항은 후속 PR로 반영한다.
@@ -87,6 +104,17 @@
 **화면**
 - **100일 목표 설정 (PR #4, #7)**: `/goals` — 2-1 목표 입력 → 2-2 주간 계획 확인, 목표 수정·주간 계획 수정 팝업, 저장 후 홈 이동 (`src/pages/goal/`)
 - **비공개 메모장 (PR #8)**: `/memos` — 양 모양 메모 카드 목록, 신규 메모 팝업(NEW NOTE), 상세 팝업에서 수정·삭제 (`src/pages/memo/`)
+- **홈 대시보드 (PR #10)**: `/` — Figma 1-1·1-2 (`src/pages/home/`, 본문만 그림)
+  - 타이틀 `TODAY` + `{닉네임} 님, …` (오늘 기록 상태에 따라 문구 변경), `ConditionCard`(괜찮아요/힘들어요)
+  - `TodayGoalSection`: 오늘의 목표 + `수정하기`(오늘 목표 수정 팝업 — `GoalEditModal` 재사용), `오늘 실천했어요` → `GoalSuccessModal`, `오늘은 쉬어갈게요`
+  - `GoalSuccessModal`: `해보니 어땠나요?` 칩, `대시보드로 돌아가기`, `완료 취소`
+  - 이번 4주 계획: `WeeklyPlanList` + `계획 수정하기`(`WeeklyPlanEditModal`)
+  - 목표가 없으면 `/goals` 안내 (문구 임시)
+- **한 칸씩 내 속도로 — 100칸 양털판 (PR #12)**: 홈 '오늘의 목표' 아래 (Figma 95:428, GL-11)
+  - `SheepBoard`(SVG 양, 칸 순서 위 줄부터 왼→오), `SheepProgressSection`(`N일 째` 배지 + 범례 실천/쉬어감/오늘/기록 없음), `sheepDays.ts`(시작일 기준 날짜 계산)
+  - 성공 팝업의 양도 같은 `SheepBoard`로 그려 방금 채운 칸이 보임 (`assets/home/success-sheep.svg`는 미사용, 삭제 안 함)
+  - 버그 수정: 새 목표 시작 시 이전 목표의 시작일을 이어받던 문제 → `createGoal` 추가(시작일 = 오늘, 1일 째부터), 시작일을 UTC로 계산해 한국 시간 새벽에 하루 밀리던 문제 → `todayKey()` 사용
+- **Figma 차이 수정 (PR #13)**: 2-1 라벨 뒤 빨간 필수 `*`, 라벨-입력칸 8px, 입력 팝업 4종·메모 상세의 입력칸-버튼 간격 32px, 하단 내비 아이콘 Figma 크기
 
 **기타**
 - **팝업 입력 포커스 버그 수정 (PR #6)**: `Modal`이 부모 리렌더링마다 포커스를 다시 가져가던 문제 수정 (Props 변경 없음)
@@ -99,12 +127,12 @@
 | 파일 | 컴포넌트 | 주요 Props |
 |---|---|---|
 | `src/components/Button.tsx` | `Button` | `variant: 'primary' \| 'secondary'`, `size: 'lg'(56px) \| 'md'(42px)`, `fullWidth`, 기본 button 속성 |
-| `src/components/TextField.tsx` | `TextField` | `label?`, `tone: 'emphasis'(빨간 테두리) \| 'default'(베이지 테두리)`, 기본 input 속성 |
+| `src/components/TextField.tsx` | `TextField` | `label?: ReactNode`(#13에서 string → ReactNode), `tone: 'emphasis'(빨간 테두리) \| 'default'(베이지 테두리)`, 기본 input 속성 |
 | `src/components/TextArea.tsx` | `TextArea` | 기본 textarea 속성 (높이 141px) |
 | `src/components/Chip.tsx` | `Chip` | `selected`, `size: 'md'(42px) \| 'sm'(40px)` |
-| `src/components/Modal.tsx` | `Modal` | `open`, `onClose`, `title`, `description?`, `footer?`, `children` (X 버튼 없음, portal, Esc·배경 클릭 닫기, 스크롤 잠금) |
+| `src/components/Modal.tsx` | `Modal` | `open`, `onClose`, `title`, `description?`, `footer?`, `children`, `paddingClassName?`(기본 `px-6 py-4`, #12) (X 버튼 없음, portal, Esc·배경 클릭 닫기, 스크롤 잠금) |
 | | `ModalActions` | `onCancel`(필수), `onConfirm`, `cancelLabel='취소'`, `confirmLabel='수정하기'`, `confirmDisabled` — 버튼이 하나인 팝업은 footer에 `Button` 직접 사용 |
-| `src/components/PageTitle.tsx` | `PageTitle` | `label?`, `title`, `description?` |
+| `src/components/PageTitle.tsx` | `PageTitle` | `label?`, `title`, `description?`, `children?`(#10 — 타이틀 영역 안 추가 내용) |
 | `src/components/Header.tsx` | `Header` | `showBack?`, `onBack?`, `right?` (가운데 `/sheep.png` 로고) |
 | `src/components/BottomNav.tsx` | `BottomNav` | `active?: 'home'\|'memo'\|'support'\|'my'`, `onNavigate?` (홈/메모/지원/내 정보 4개 탭 고정) |
 | `src/components/BottomActionArea.tsx` | `BottomActionArea` | `helperText?`, `children` |
@@ -114,7 +142,7 @@
 | `src/layouts/MobileLayout.tsx` | `MobileLayout` | `header?`, `bottom?`, `children` (헤더 / 스크롤 본문 / 하단) — 단독 화면용 |
 | `src/layouts/TabLayout.tsx` | `TabLayout` | Props 없음 (라우트 레이아웃). 공통 Header + `BottomNav`, 활성 탭·탭 이동 처리 — 탭 화면용 |
 | `src/utils/cn.ts` | `cn()` | className 조합 |
-| `src/utils/date.ts` | `formatMonthDayTime()`, `formatFullDateTime()` | 메모 날짜·시간 표시 |
+| `src/utils/date.ts` | `todayKey()`, `formatMonthDayTime()`, `formatFullDateTime()` | 오늘 날짜 키(기기 시간 `YYYY-MM-DD`), 메모 날짜·시간 표시 |
 | `src/routes/paths.ts` | `PATHS` | 경로 상수 (`home`, `goals`, `memos`, `support`, `mypage`, `onboarding`, `login`, `signup`) |
 
 목업 데이터 API
@@ -122,12 +150,14 @@
 | 파일 | 함수 |
 |---|---|
 | `src/api/mockClient.ts` | `mockResponse(data, delayMs)`, `createId(prefix)` |
-| `src/api/goal.ts` | `getGoal`, `requestWeeklyPlanDraft`, `saveGoal`, `getDailyRecords`, `saveDailyRecord` |
+| `src/api/goal.ts` | `getGoal`, `requestWeeklyPlanDraft`, `createGoal`(새 목표, 시작일 = 오늘), `saveGoal`(기존 목표 수정, 시작일 유지), `getDailyRecords`, `saveDailyRecord` |
 | `src/api/memo.ts` | `getMemos`, `getMemo`, `createMemo`, `updateMemo`, `deleteMemo` |
-| `src/types/index.ts` | `Condition`, `ConditionLog`, `WeeklyPlan`, `Goal`, `DayStatus`, `DailyRecord`, `Memo` |
-| `src/mocks/data.ts` | `mockGoal`, `mockDailyRecords`, `mockMemos` (Figma 예시 문구) |
+| `src/api/condition.ts` | `getTodayCondition` — 목업, **팀원B 컨디션 저장과 연결 필요** |
+| `src/api/profile.ts` | `getProfile` — 목업(닉네임 `구름`), **초기 설정 프로필과 연결 필요** |
+| `src/types/index.ts` | `Condition`, `ConditionLog`, `WeeklyPlan`, `Goal`, `DayStatus`, `DailyRecord`, `Profile`, `Memo` |
+| `src/mocks/data.ts` | `mockGoal`(시작일 2026-10-01), `mockDailyRecords`, `mockMemos` 등 (Figma 예시 문구) |
 
-## 6. 디렉터리 구조 (`develop` `75785f4` 기준)
+## 6. 디렉터리 구조 (`develop` `f3bcb35` 기준)
 
 ```text
 .
@@ -147,11 +177,13 @@
     │   ├── HomePage, GoalsPage, MemosPage, SupportPage, MyPage   # 라우트 진입 페이지
     │   ├── OnboardingPage, LoginPage, SignupPage, NotFoundPage   # 팀원B placeholder
     │   ├── goal/                      # 100일 목표 설정 (GoalSettingPage, 단계·팝업)
+    │   ├── home/                      # 홈 대시보드 (HomeDashboard, ConditionCard, TodayGoalSection, GoalSuccessModal, SheepBoard, SheepProgressSection, sheepDays)
     │   └── memo/                      # 비공개 메모장 (MemoPage, 카드·팝업)
     ├── types/index.ts
     ├── mocks/data.ts
-    ├── api/                           # mockClient, goal, memo
+    ├── api/                           # mockClient, goal, memo, condition, profile
     ├── utils/                         # cn, date
+    ├── assets/home/                   # 컨디션 아이콘 SVG, success-sheep.svg(미사용)
     ├── assets/vite.svg                # Vite 템플릿 잔재
     └── preview/                       # ComponentPreview, PagePreview, main
 ```
@@ -182,6 +214,9 @@ npm run lint       # eslint
 | 라우트 경로 (11-11, 팀원B) | `/` 홈, `/goals` 목표, `/memos` 메모, `/support` 상담·기관 목록, `/mypage` 내 정보 + `/onboarding`, `/login`, `/signup` | PR #5 `AppRouter.tsx` |
 | 레이아웃 그룹 (11-11 확정) | 공통 Header + BottomNav는 `/`, `/memos`, `/support`, `/mypage`에만. `/goals` 등은 단독 화면(자체 Header·하단 CTA) | PR #7: `TabLayout`, `paths.ts`, `AppRouter.tsx` 그룹 분리, `/goals` 연결 |
 | 미사용 CSS (11-11, 팀원B) | `index.css`, `App.css` 삭제 | PR #6 |
+| 홈 기록 상태 vs 컨디션 (11-15) | Figma 1-2 두 화면: 타이틀·목표 영역은 **기록 상태**(실천/쉬어감), 카드는 **컨디션**을 따름 | PR #10 |
+| 오늘의 목표 수정 범위 (11-15) | 100일 목표가 아니라 **오늘 목표(`todayGoal`)만** 수정 | PR #10 |
+| 양털판 칸 순서 (11-16) | 1칸 = 목표 시작일, 위 줄부터 왼쪽 → 오른쪽. 새 목표는 1일 째부터 | PR #12 |
 
 미정 (확정 금지)
 
@@ -193,9 +228,14 @@ npm run lint       # eslint
 | 메모 빈 목록 문구 | Figma에 빈 상태 화면 없음 → `MemoPage`에 임시 문구 | 디자인 |
 | 메모 삭제 확인 단계 | Figma에 확인 화면 없음 → 지금은 `삭제하기`를 누르면 바로 삭제 | 디자인 |
 | 신규 메모 placeholder 문구 | Figma 그대로 `예) 나에게 맞는 생활 리듬 만들기` (목표 문구와 같음) → 메모용 문구로 바꿀지 확인 | 디자인 |
-| 팝업 높이 (작은 화면) | 메모 상세 팝업 약 490px, 주간 계획 수정 팝업 약 534px. 공통 `Modal`에 최대 높이·스크롤이 없어 세로가 짧은 화면에서 아래 버튼이 잘릴 수 있음 | 디자인·프론트 |
-| 백엔드 스키마·API | BE 저장소 비어 있음, `src/types`는 프론트 초안 | 백엔드 |
-| Supabase 연동 방식 | 프론트 직접 호출 vs 백엔드 API 경유 미정, `supabase-js` 미설치 | 백엔드·프론트 |
+| 팝업 높이 (작은 화면) | 메모 상세 팝업 약 490px, 주간 계획 수정 팝업 약 534px, 성공 팝업 542px. 320×568에서는 화면 안에 들어옴(#13 확인). 그보다 짧은 화면은 미확인 | 디자인·프론트 |
+| 힘들어요일 때 더 작은 목표 | 데이터 없음 → 지금은 컨디션과 상관없이 같은 오늘 목표 | 디자인·팀 |
+| 쉬어감 되돌리기 / 성공 팝업 닫은 뒤 완료 취소 | Figma 1-2에 없음 → 지금은 불가 | 디자인 |
+| 목표 없음 홈 문구·버튼 | Figma에 화면 없음 → 임시 | 디자인 |
+| 양털판 실천·기록 없음 칸 색 | 실천(`surface` 흰색)과 기록 없음(`background` 크림)이 화면에서 거의 같아 보임 → Figma 색 재확인 | 디자인 |
+| `해보니 어땠나요?` 피드백 사용처 | 칩 선택값을 저장만 함 ("다음 목표 분량 참고") — 실제 반영 방식 미정 | 팀 |
+| 백엔드 스키마 ↔ `src/types` | BE 저장소에 `supabase/schema.sql`·README 추가됨(11-16 03:38 KST). 테이블 `profiles`, `conditions`(`OK`/`HARD`), `goals`(`DRAFT`→`ACTIVE`→`ENDED`), `goal_weeks`, `daily_records`(오늘 것만 수정), `memos`, `support_programs`, `support_organizations`, RPC `get_home_summary()`. 프론트 타입과 값이 다름(예: 컨디션 `good`/`hard` ↔ `OK`/`HARD`) → 맞추는 작업 필요 | 백엔드·프론트 |
+| Supabase 연동 방식 | BE README 기준 **프론트가 `supabase-js`로 직접 호출(anon key) + RLS, 카카오 로그인** — 팀 확정 여부는 확인 필요 (CLAUDE.md 8장은 아직 '미정'). `supabase-js`는 #14에서 추가 예정(`src/utils/supabase.ts`는 아직 빈 파일) | 백엔드·프론트 |
 | AI 주간 계획 생성 담당 | 미정 (프론트에서 AI 키 사용 금지) | 팀 |
 | 메모 잠금·암호화 (PRD Should) | 해커톤 범위 미정 | 팀 |
 
@@ -215,10 +255,11 @@ npm run lint       # eslint
 
 ## 10. 다음 개발 단계 (우선순위)
 
-(2026-11-11 기준) PR #2~#8 머지 완료, 열린 PR은 #1뿐. 마감 **11-20(금) 23:59**.
+(2026-11-16 기준) PR #2~#13 머지 완료 — 팀원A 화면(홈·100일 목표·메모장)은 목업 기준으로 모두 구현됨. 열린 PR은 #1, #14. 마감 **11-20(금) 23:59** (11-18 최종 회의에서 QA·제출 자료 검토).
 
-1. **`feat/home-dashboard`** — 1-1/1-2 홈: 오늘의 컨디션 카드, 오늘의 목표 + 수정 팝업, `오늘 실천했어요` → 오늘 목표 성공 팝업, `오늘은 쉬어갈게요`, 목표 없으면 `/goals` 안내 (`getGoal`, `getDailyRecords`, `saveDailyRecord`) — PRD Must. `/`는 탭 화면이므로 **본문만**. 양털판(100칸)·이번 4주 계획(`WeeklyPlanList`, `WeeklyPlanEditModal` 재사용)은 Should
-2. **컨디션 연동** — 홈의 오늘 컨디션은 은빈님 컨디션 체크 화면의 저장과 맞춘다. 저장 함수 이름·형태가 정해지기 전까지는 목업 함수로 두고 PR에 "연결 필요"로 표시. 닉네임(초기 설정)도 같은 방식
-3. **Supabase 전환** — 백엔드 스키마 확정 후 `src/types` 조정 → `src/api` 함수 내부만 Supabase 호출로 교체 (화면 코드는 그대로)
+1. **#14 머지 후 확인** — `npm ci`(새 패키지) → build·lint, `/goals`·메모 팝업 등 `MobileLayout`/폰트 변경 영향 확인, 문제 있으면 후속 PR
+2. **컨디션·닉네임 연동** — 온보딩 컨디션 선택(#14)과 초기 설정 닉네임의 저장 위치가 정해지면 `getTodayCondition()`·`getProfile()` 내부만 바꾼다 (화면 코드는 그대로)
+3. **Supabase 전환** — BE `schema.sql`(11-16)에 맞춰 `src/types` 조정 → `src/api` 함수 내부만 Supabase 호출로 교체 (홈은 RPC `get_home_summary()` 사용 검토). #14 머지 후 `src/utils/supabase.ts` 클라이언트를 같이 쓴다
+4. **시연 준비** — 전체 흐름 QA(온보딩 → 홈 → 목표 → 메모), Node 26.8.2에서 build 확인, 오프라인 구동 환경 또는 2분 이내 시연 녹화
 
-팀 확인 요청: 목표 기록 방식(8장), 메모 관련 미정 사항(8장), 백엔드에 `src/types` 초안 공유.
+팀 확인 요청: 8장 미정 사항(기록 방식, 힘들어요 목표, 양털판 칸 색, 메모 관련), 백엔드에 `src/types` 초안 공유.
