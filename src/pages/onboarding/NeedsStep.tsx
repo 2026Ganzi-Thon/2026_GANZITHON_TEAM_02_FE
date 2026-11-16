@@ -134,7 +134,7 @@ export function NeedsStep({ onNext, onBack }: NeedsStepProps) {
                 onClick={() => setSelectedNeed(need.value)}
                 className={[
                   'flex min-h-[80px] w-full items-center',
-                  'gap-4 rounded-[12px] border px-6 py-5',
+                  'gap-4 rounded-[12px] border px-6 py-[14px]',
                   'text-left transition-colors',
                   isSelected
                     ? 'border-primary bg-primary-soft'
