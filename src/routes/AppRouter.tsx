@@ -14,6 +14,8 @@ import MyPage from '../pages/MyPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import { OnboardingSetupPage } from '../pages/onboarding/OnboardingSetupPage';
 
+import { ProgramDetailPage } from '../pages/support/ProgramDetailPage';
+
 /**
  * 라우트는 레이아웃 기준으로 두 그룹으로 나눈다. 새 페이지는 반드시 둘 중 하나에 넣는다.
  *
@@ -43,6 +45,12 @@ export default function AppRouter() {
         <Route path={PATHS.login} element={<LoginPage />} />
         <Route path={PATHS.signup} element={<SignupPage />} />
         <Route path={PATHS.onboardingSetup} element={<OnboardingSetupPage/>} />
+
+        {/* 3) 세부 화면: 지원 탭 */}
+        <Route
+          path="/support/programs/:programId"
+          element={<ProgramDetailPage />}
+        />
 
         {/* 존재하지 않는 경로 */}
         <Route path="*" element={<NotFoundPage />} />

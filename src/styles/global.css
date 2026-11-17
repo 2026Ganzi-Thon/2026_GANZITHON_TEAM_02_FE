@@ -115,3 +115,13 @@
     }
   }
 }
+
+/* 스크롤 기능은 유지하면서 스크롤바만 숨김 */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
