@@ -100,7 +100,7 @@ export default function LoginPage() {
 
   return (
     <MobileLayout>
-      <div className="flex flex-col h-full justify-between">
+      <div className="relative flex flex-col h-full justify-between">
         <LoginStep
           onKakaoLogin={handleKakaoLogin}
           submitting={submitting}
@@ -108,7 +108,7 @@ export default function LoginPage() {
         />
 
         {/* 백엔드 배포 전 Mock 로그인 시뮬레이션용 스위치 (신규 가입 vs 재이용 홈 직행) */}
-        <div className="text-center pb-4">
+        <div className="absolute bottom-10 left-0 right-0 z-10 text-center">
           <label className="inline-flex items-center gap-2 text-xs text-text-sub cursor-pointer select-none">
             <input
               type="checkbox"
