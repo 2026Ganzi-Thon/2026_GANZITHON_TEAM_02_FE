@@ -1,3 +1,4 @@
+import { getProfile } from './profile';
 import type {
   ApiResponse,
   SupportListParams,
@@ -90,24 +91,38 @@ export async function getSupportPrograms(
   params: SupportListParams = {},
   signal?: AbortSignal,
 ) {
-    if (USE_MOCK) {
+  let effectiveRegion = params.region;
+  if (!effectiveRegion) {
+    try {
+      const userProfile = await getProfile();
+      if (userProfile.region) {
+        effectiveRegion = userProfile.region;
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  if (USE_MOCK) {
     await mockDelay();
 
     if (signal?.aborted) {
       throw new DOMException('Aborted', 'AbortError');
     }
 
-    const filtered = params.region
-      ? mockPrograms.filter((program) =>
-          program.region.includes(params.region!),
-        )
+    const filtered = effectiveRegion
+      ? mockPrograms.filter((program) => {
+          // 시/도 또는 시/군/구 단위 매칭 지원
+          const parts = effectiveRegion!.split(' ').filter(Boolean);
+          return parts.some((p) => program.region.includes(p)) || program.region.includes(effectiveRegion!);
+        })
       : mockPrograms;
 
-    return paginateMockData(filtered, params);
+    return paginateMockData(filtered.length > 0 ? filtered : mockPrograms, params);
   }
 
   return request<SupportListResponse<SupportProgram>>(
-    `/api/support/programs${buildQuery(params)}`,
+    `/api/support/programs${buildQuery({ ...params, region: effectiveRegion })}`,
     signal,
   );
 }
@@ -147,6 +162,18 @@ export async function getSupportOrganizations(
   params: SupportListParams = {},
   signal?: AbortSignal,
 ) {
+  let effectiveRegion = params.region;
+  if (!effectiveRegion) {
+    try {
+      const userProfile = await getProfile();
+      if (userProfile.region) {
+        effectiveRegion = userProfile.region;
+      }
+    } catch {
+      // ignore
+    }
+  }
+
   if (USE_MOCK) {
     await mockDelay();
 
@@ -156,17 +183,18 @@ export async function getSupportOrganizations(
 
     // 기관 목록 응답에는 region 필드가 없으므로
     // Mock에서는 주소를 기준으로 지역 필터링
-    const filtered = params.region
-      ? mockOrganizations.filter((organization) =>
-          organization.address.includes(params.region!),
-        )
+    const filtered = effectiveRegion
+      ? mockOrganizations.filter((organization) => {
+          const parts = effectiveRegion!.split(' ').filter(Boolean);
+          return parts.some((p) => organization.address.includes(p)) || organization.address.includes(effectiveRegion!);
+        })
       : mockOrganizations;
 
-    return paginateMockData(filtered, params);
+    return paginateMockData(filtered.length > 0 ? filtered : mockOrganizations, params);
   }
 
   return request<SupportListResponse<SupportOrganization>>(
-    `/api/support/organizations${buildQuery(params)}`,
+    `/api/support/organizations${buildQuery({ ...params, region: effectiveRegion })}`,
     signal,
   );
 }

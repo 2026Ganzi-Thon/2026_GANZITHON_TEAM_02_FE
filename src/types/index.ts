@@ -1,14 +1,24 @@
 /**
- * 도메인 타입 (목업 기준 초안).
- * 백엔드(Supabase) 스키마가 정해지면 맞춰서 수정한다. docs/FUNCTION_SPEC.md 5장과 같은 내용.
+ * 도메인 타입 (API 명세서 기준).
+ * docs/FUNCTION_SPEC.md 및 아리톤 API 명세서(Supabase + 카카오 연동 수정본) 참조.
  */
 
 /** 괜찮아요 / 힘들어요 */
 export type Condition = 'good' | 'hard';
+export type ConditionApiEnum = 'OK' | 'HARD';
+
+/** 필요한 도움 5종 */
+export type HelpType =
+  | 'SMALL_GOAL'
+  | 'MEMO'
+  | 'PROGRAM'
+  | 'COUNSELING'
+  | 'REST';
 
 export type ConditionLog = {
   date: string; // YYYY-MM-DD
   condition: Condition | 'skipped';
+  helpType?: HelpType | null;
 };
 
 export type WeeklyPlan = {
@@ -34,17 +44,20 @@ export type DailyRecord = {
   todayGoal: string;
   status: DayStatus;
   /** 이 정도면 괜찮아요 / 아직 부담돼요 */
-  feedback?: 'okay' | 'burden';
+  feedback?: 'okay' | 'burden' | 'MANAGEABLE' | 'BURDENSOME';
 };
 
 /** 프로필 정보 (초기 설정 및 마이페이지 프로필 API 연동용) */
 export type Profile = {
   userId?: number;
+  user_id?: number;
   nickname: string;
   region: string | null;
   interests: string[];
   initialSetupCompleted?: boolean;
+  initial_setup_completed?: boolean;
   loginProvider?: 'KAKAO' | 'NAVER' | string;
+  login_provider?: string;
 };
 
 /** 프로필 수정 요청 Body (PUT /api/users/me/profile) */
@@ -52,7 +65,25 @@ export type UpdateProfilePayload = {
   nickname: string;
   region?: string | null;
   interests?: string[];
+  interest_undecided?: boolean;
   interestUndecided?: boolean;
+};
+
+/** GET /api/auth/me 응답 데이터 */
+export type AuthMeData = {
+  user_id: number;
+  auth_user_id: string;
+  login_provider: string;
+  is_new_user: boolean;
+  initial_setup_completed: boolean;
+  next_step: 'INITIAL_SETUP' | 'HOME';
+};
+
+/** 오늘 컨디션 API 응답 데이터 */
+export type TodayConditionData = {
+  date: string;
+  condition: ConditionApiEnum | null;
+  help_type: HelpType | null;
 };
 
 export type Memo = {

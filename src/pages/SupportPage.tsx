@@ -6,7 +6,6 @@ import {
 } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-
 import { SupportTabs } from '../components/support/SupportTabs';
 import { ProgramCard } from '../components/support/ProgramCard';
 import { OrganizationCard } from '../components/support/OrganizationCard';
@@ -15,6 +14,7 @@ import {
   getSupportPrograms,
   getSupportOrganizations,
 } from '../api/support';
+import { getProfile } from '../api/profile';
 
 import type {
   SupportTab,
@@ -87,11 +87,27 @@ export default function SupportPage() {
   const [lists, setLists] = useState<SupportCache>(
     () => cachedData,
   );
+  const [userRegion, setUserRegion] = useState<string>('');
 
   const [loadingTab, setLoadingTab] =
     useState<SupportTab | null>(null);
 
   const [error, setError] = useState('');
+
+  // 사용자 지역 프로필 불러오기
+  useEffect(() => {
+    let active = true;
+    getProfile()
+      .then((profile) => {
+        if (active && profile.region) {
+          setUserRegion(profile.region);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -381,7 +397,7 @@ export default function SupportPage() {
           </p>
 
           <p className="text-button text-text-main">
-            나의 지역:
+            나의 지역: {userRegion || '지역 미설정'}
           </p>
 
           <p className="text-caption text-primary-pressed">

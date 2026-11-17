@@ -3,18 +3,18 @@ export type NextStep = 'INITIAL_SETUP' | 'HOME';
 
 export type AuthTokens = {
   access_token: string;
-  refresh_token: string;
-  token_type: string;
-  expires_in: number;
+  refresh_token?: string;
+  token_type?: string;
+  expires_in?: number;
 };
 
-export type KakaoLoginData = AuthTokens & {
+export type AuthMeData = {
+  user_id: number;
+  auth_user_id: string;
+  login_provider: string;
   is_new_user: boolean;
+  initial_setup_completed: boolean;
   next_step: NextStep;
-  user: {
-    user_id: number;
-    nickname: string | null;
-  };
 };
 
 export type ProfileData = {
@@ -29,6 +29,7 @@ export type ProfileData = {
 export type ApiResponse<T> = {
   success: boolean;
   data: T;
+  message?: string;
 };
 
 export type KakaoAuthResult =

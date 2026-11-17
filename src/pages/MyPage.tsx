@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProfile } from '../api/profile';
+import { signOut } from '../api/auth';
 import { PageTitle } from '../components/PageTitle';
 import { Button } from '../components/Button';
 import { Modal } from '../components/Modal';
@@ -77,8 +78,8 @@ export default function MyPage() {
           </div>
         </div>
 
-        {/* 수정하기 버튼 */}
-        <div className="mt-2">
+        {/* 수정하기 및 로그아웃 버튼 */}
+        <div className="mt-3 flex flex-col gap-2">
           <Button
             variant="primary"
             size="lg"
@@ -86,6 +87,18 @@ export default function MyPage() {
             onClick={() => navigate(PATHS.mypageEdit)}
           >
             수정하기
+          </Button>
+
+          <Button
+            variant="secondary"
+            size="md"
+            fullWidth
+            onClick={async () => {
+              await signOut();
+              navigate(PATHS.login, { replace: true });
+            }}
+          >
+            로그아웃
           </Button>
         </div>
 
