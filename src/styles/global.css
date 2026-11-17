@@ -17,6 +17,7 @@
   --color-wool-rest: #9a8576; /* 양털판 '쉬어감' 칸의 – 표시 (1-1 한 칸씩 내 속도로) */
 
   --font-sans: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-logo: BMKkubulim, sans-serif;
 
   /* 상단 라벨 */
   --text-label: 14px;

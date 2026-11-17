@@ -1,0 +1,19 @@
+/* Pretendard - 앱 전체 기본 폰트 */
+@font-face {
+  font-family: 'Pretendard';
+  src: url('../assets/fonts/PretendardVariable.woff2')
+    format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* BM 꾸불림 - 온보딩 로고 전용 */
+@font-face {
+  font-family: 'BMKkubulim';
+  src: url('../assets/fonts/BMKkubulimTTF.ttf')
+    format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
