@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { MobileLayout } from '../../layouts/MobileLayout';
 import { Button } from '../../components/Button';
@@ -6,10 +5,8 @@ import { Button } from '../../components/Button';
 type Condition = 'good' | 'bad';
 
 type ConditionStepProps = {
-  onNext: () => void;
+  onNext: (condition: Condition | 'skipped') => void;
 };
-
-const STORAGE_KEY = 'onboarding_condition';
 
 const conditions = [
   {
@@ -25,25 +22,15 @@ const conditions = [
 ] as const;
 
 export function ConditionStep({ onNext }: ConditionStepProps) {
-  const [selectedCondition, setSelectedCondition] =
-    useState<Condition | null>(() => {
-    const saved = sessionStorage.getItem(STORAGE_KEY);
+  const [selectedCondition, setSelectedCondition] = useState<Condition | null>(null);
 
-    return saved === 'good' || saved === 'bad'
-      ? saved
-      : null;
-  });
-  
   const handleSelect = () => {
     if (!selectedCondition) return;
-
-    sessionStorage.setItem(STORAGE_KEY, selectedCondition);
-    onNext();
+    onNext(selectedCondition);
   };
 
   const handleSkip = () => {
-    sessionStorage.removeItem(STORAGE_KEY);
-    onNext();
+    onNext('skipped');
   };
 
   return (

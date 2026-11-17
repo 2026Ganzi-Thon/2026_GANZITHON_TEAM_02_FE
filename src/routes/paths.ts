@@ -12,5 +12,6 @@ export const PATHS = {
   onboarding: '/onboarding',
   login: '/login',
   signup: '/signup',
-  onboardingSetup: '/onboarding/setup'
+  onboardingSetup: '/onboarding/setup',
+  authCallback: '/auth/callback',
 } as const;
