@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import {
   ArrowUpRight,
@@ -12,7 +11,7 @@ import { MobileLayout } from '../../layouts/MobileLayout';
 import { Button } from '../../components/Button';
 import { Header } from '../../components/Header';
 
-type Need =
+export type Need =
   | 'goal'
   | 'journal'
   | 'information'
@@ -20,11 +19,9 @@ type Need =
   | 'rest';
 
 type NeedsStepProps = {
-  onNext: () => void;
+  onNext: (need: Need | null) => void;
   onBack: () => void;
 };
-
-const STORAGE_KEY = 'onboarding_need';
 
 const needs = [
   {
@@ -60,33 +57,15 @@ const needs = [
 ] as const;
 
 export function NeedsStep({ onNext, onBack }: NeedsStepProps) {
-  const [selectedNeed, setSelectedNeed] =
-    useState<Need | null>(() => {
-    const saved = sessionStorage.getItem(STORAGE_KEY);
-
-    const validNeeds: Need[] = [
-      'goal',
-      'journal',
-      'information',
-      'counseling',
-      'rest',
-    ];
-
-    return validNeeds.includes(saved as Need)
-      ? (saved as Need)
-      : null;
-  });
+  const [selectedNeed, setSelectedNeed] = useState<Need | null>(null);
 
   const handleSelect = () => {
     if (!selectedNeed) return;
-
-    sessionStorage.setItem(STORAGE_KEY, selectedNeed);
-    onNext();
+    onNext(selectedNeed);
   };
 
   const handleSkip = () => {
-    sessionStorage.removeItem(STORAGE_KEY);
-    onNext();
+    onNext(null);
   };
 
   return (
@@ -134,9 +113,7 @@ export function NeedsStep({ onNext, onBack }: NeedsStepProps) {
           className="mt-8 flex flex-col gap-4"
         >
           {needs.map((need) => {
-            const isSelected =
-              selectedNeed === need.value;
-
+            const isSelected = selectedNeed === need.value;
             const Icon = need.icon;
 
             return (
@@ -150,9 +127,7 @@ export function NeedsStep({ onNext, onBack }: NeedsStepProps) {
                   'flex min-h-[80px] w-full items-center',
                   'gap-4 rounded-[12px] border px-6 py-[14px]',
                   'text-left transition-colors bg-surface',
-                  isSelected
-                    ? 'border-primary'
-                    : 'border-border',
+                  isSelected ? 'border-primary' : 'border-border',
                 ].join(' ')}
               >
                 <span
@@ -163,8 +138,7 @@ export function NeedsStep({ onNext, onBack }: NeedsStepProps) {
                     size={26}
                     strokeWidth={2}
                     fill={
-                      need.value === 'counseling' ||
-                      need.value === 'rest'
+                      need.value === 'counseling' || need.value === 'rest'
                         ? 'currentColor'
                         : 'none'
                     }
