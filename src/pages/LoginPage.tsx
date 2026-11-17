@@ -1,105 +1,85 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { MobileLayout } from '../layouts/MobileLayout';
-import { getProfile } from '../api/auth';
-import { getAccessToken } from '../utils/authStorage';
-import { MOCK_AUTH } from './login/constants';
+import { getAuthMe, signInWithKakao } from '../api/auth';
+import { getAccessToken, saveAccessToken } from '../utils/authStorage';
+import { supabase, isSupabaseConfigured } from '../utils/supabase';
 import { LoginStep } from './login/LoginStep';
 import { PATHS } from '../routes/paths';
 
 export default function LoginPage() {
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(!MOCK_AUTH);
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [testAsExistingUser, setTestAsExistingUser] = useState(false);
 
-  // 로그인 상태 확인
+  // 1. 기존 로그인 세션 또는 OAuth 리다이렉트 콜백 확인
   useEffect(() => {
-    if (MOCK_AUTH) return;
-
     let active = true;
 
-    const initializeAuth = async () => {
-      const token = getAccessToken();
-
-      if (!token) {
-        if (active) setLoading(false);
-        return;
-      }
-
+    const handleAuthCheck = async () => {
       try {
-        const profile = await getProfile();
+        // 실제 Supabase OAuth 콜백인 경우 세션 처리
+        if (isSupabaseConfigured) {
+          const { data } = await supabase.auth.getSession();
+          if (data.session?.access_token) {
+            saveAccessToken(data.session.access_token);
+          }
+        }
 
+        const token = getAccessToken();
+        if (!token) {
+          if (active) setLoading(false);
+          return;
+        }
+
+        // 로그인된 토큰이 있으면 /api/auth/me 확인
+        const authMe = await getAuthMe();
         if (!active) return;
 
-        if (profile.initial_setup_completed) {
-          navigate(PATHS.home, { replace: true });
+        if (authMe.next_step === 'INITIAL_SETUP') {
+          navigate(PATHS.onboardingSetup, { replace: true });
         } else {
-          navigate(PATHS.onboardingSetup, {
-            replace: true,
-          });
+          //navigate(PATHS.home, { replace: true });
+          navigate(PATHS.onboardingSetup, { replace: true });
         }
-      } catch {
-        if (active) {
-          // TODO: 토큰 갱신 API 연동 후 처리
-          setError('');
-        }
-      } finally {
+      } catch (e) {
+        console.error('인증 확인 중 오류:', e);
         if (active) setLoading(false);
       }
     };
 
-    void initializeAuth();
+    void handleAuthCheck();
 
     return () => {
       active = false;
     };
   }, [navigate]);
 
-  // 카카오 로그인
+  // 2. 카카오 로그인 및 신규 가입 처리
   const handleKakaoLogin = async () => {
     setError('');
-
-    // 임시 UI 테스트
-    if (MOCK_AUTH) {
-      navigate(PATHS.onboardingSetup);
-      return;
-    }
-
     setSubmitting(true);
 
     try {
-      // TODO:
-      // 백엔드 인증 방식 확정 후
-      // 카카오 SDK 또는 OAuth 인증 결과를 받아 전달
-      //
-      // 예시:
-      // const authResult = {
-      //   authorization_code: '카카오에서_발급받은_코드',
-      // };
-      //
-      // const loginData = await loginWithKakao(authResult);
-      // saveAuthTokens(loginData);
-      //
-      // if (loginData.next_step === 'INITIAL_SETUP') {
-      //   navigate(PATHS.onboardingSetup, {
-      //     replace: true,
-      //   });
-      // } else {
-      //   navigate(PATHS.home, { replace: true });
-      // }
+      // 카카오 OAuth + Supabase Auth 로그인 요청
+      const authResult = await signInWithKakao({
+        isNewUser: !testAsExistingUser,
+        forceMock: testAsExistingUser,
+      });
 
-      throw new Error(
-        '카카오 인증 방식이 아직 설정되지 않았어요.',
-      );
+      if (authResult?.next_step === 'INITIAL_SETUP') {
+        navigate(PATHS.onboardingSetup, { replace: true });
+      } else if (authResult?.next_step === 'HOME') {
+        //navigate(PATHS.home, { replace: true });
+        navigate(PATHS.onboardingSetup, { replace: true });
+      }
     } catch (err) {
       setError(
-        err instanceof Error
-          ? err.message
-          : '로그인 중 문제가 발생했어요.',
+        err instanceof Error ? err.message : '로그인 중 문제가 발생했어요.',
       );
     } finally {
       setSubmitting(false);
@@ -120,11 +100,26 @@ export default function LoginPage() {
 
   return (
     <MobileLayout>
-      <LoginStep
-        onKakaoLogin={handleKakaoLogin}
-        submitting={submitting}
-        error={error}
-      />
+      <div className="flex flex-col h-full justify-between">
+        <LoginStep
+          onKakaoLogin={handleKakaoLogin}
+          submitting={submitting}
+          error={error}
+        />
+
+        {/* 백엔드 배포 전 Mock 로그인 시뮬레이션용 스위치 (신규 가입 vs 재이용 홈 직행) */}
+        <div className="text-center pb-4">
+          <label className="inline-flex items-center gap-2 text-xs text-text-sub cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={testAsExistingUser}
+              onChange={(e) => setTestAsExistingUser(e.target.checked)}
+              className="accent-primary"
+            />
+            <span>(테스트용) 기존 회원으로 바로 로그인 (홈 진입)</span>
+          </label>
+        </div>
+      </div>
     </MobileLayout>
   );
 }

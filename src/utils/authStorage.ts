@@ -1,31 +1,47 @@
-import type { AuthTokens } from '../pages/login/types';
+const TOKEN_STORAGE_KEY = 'ari_access_token';
+const AUTH_USER_KEY = 'ari_auth_user';
 
-const TOKEN_STORAGE_KEY = 'auth_tokens';
-
-// 인증 토큰 저장
-// TODO: 백엔드와 토큰 저장 정책 확정 후 변경
-export function saveAuthTokens(data: AuthTokens) {
-  sessionStorage.setItem(
-    TOKEN_STORAGE_KEY,
-    JSON.stringify({
-      access_token: data.access_token,
-      refresh_token: data.refresh_token,
-      token_type: data.token_type,
-      expires_in: data.expires_in,
-    }),
-  );
+export interface StoredAuthUser {
+  userId: number;
+  authUserId: string;
+  loginProvider: string;
+  isNewUser: boolean;
+  initialSetupCompleted: boolean;
 }
 
-// 인증 토큰 조회
+// Supabase / Mock 액세스 토큰 저장
+export function saveAccessToken(token: string): void {
+  localStorage.setItem(TOKEN_STORAGE_KEY, token);
+}
+
+// Supabase / Mock 액세스 토큰 조회
 export function getAccessToken(): string | null {
-  const stored = sessionStorage.getItem(TOKEN_STORAGE_KEY);
+  return localStorage.getItem(TOKEN_STORAGE_KEY);
+}
 
+// 인증 사용자 정보 저장
+export function saveAuthUser(user: StoredAuthUser): void {
+  localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+}
+
+// 인증 사용자 정보 조회
+export function getStoredAuthUser(): StoredAuthUser | null {
+  const stored = localStorage.getItem(AUTH_USER_KEY);
   if (!stored) return null;
-
   try {
-    const tokens: AuthTokens = JSON.parse(stored);
-    return tokens.access_token;
+    return JSON.parse(stored) as StoredAuthUser;
   } catch {
     return null;
   }
+}
+
+// 인증 세션 초기화 (로그아웃 / 탈퇴 시)
+export function clearAuthSession(): void {
+  localStorage.removeItem(TOKEN_STORAGE_KEY);
+  localStorage.removeItem(AUTH_USER_KEY);
+}
+
+// 로그인 여부 확인
+export function isAuthenticated(): boolean {
+  return Boolean(getAccessToken());
 }
