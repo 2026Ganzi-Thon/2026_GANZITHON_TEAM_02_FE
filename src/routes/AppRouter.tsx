@@ -12,6 +12,7 @@ import MemosPage from '../pages/MemosPage';
 import SupportPage from '../pages/SupportPage';
 import MyPage from '../pages/MyPage';
 import NotFoundPage from '../pages/NotFoundPage';
+import { OnboardingSetupPage } from '../pages/onboarding/OnboardingSetupPage';
 
 /**
  * 라우트는 레이아웃 기준으로 두 그룹으로 나눈다. 새 페이지는 반드시 둘 중 하나에 넣는다.
@@ -41,6 +42,7 @@ export default function AppRouter() {
         <Route path={PATHS.onboarding} element={<OnboardingPage />} />
         <Route path={PATHS.login} element={<LoginPage />} />
         <Route path={PATHS.signup} element={<SignupPage />} />
+        <Route path={PATHS.onboardingSetup} element={<OnboardingSetupPage/>} />
 
         {/* 존재하지 않는 경로 */}
         <Route path="*" element={<NotFoundPage />} />

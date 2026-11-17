@@ -61,7 +61,21 @@ const needs = [
 
 export function NeedsStep({ onNext, onBack }: NeedsStepProps) {
   const [selectedNeed, setSelectedNeed] =
-    useState<Need | null>(null);
+    useState<Need | null>(() => {
+    const saved = sessionStorage.getItem(STORAGE_KEY);
+
+    const validNeeds: Need[] = [
+      'goal',
+      'journal',
+      'information',
+      'counseling',
+      'rest',
+    ];
+
+    return validNeeds.includes(saved as Need)
+      ? (saved as Need)
+      : null;
+  });
 
   const handleSelect = () => {
     if (!selectedNeed) return;
@@ -135,10 +149,10 @@ export function NeedsStep({ onNext, onBack }: NeedsStepProps) {
                 className={[
                   'flex min-h-[80px] w-full items-center',
                   'gap-4 rounded-[12px] border px-6 py-[14px]',
-                  'text-left transition-colors',
+                  'text-left transition-colors bg-surface',
                   isSelected
-                    ? 'border-primary bg-primary-soft'
-                    : 'border-border bg-surface',
+                    ? 'border-primary'
+                    : 'border-border',
                 ].join(' ')}
               >
                 <span

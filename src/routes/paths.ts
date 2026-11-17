@@ -11,4 +11,5 @@ export const PATHS = {
   onboarding: '/onboarding',
   login: '/login',
   signup: '/signup',
+  onboardingSetup: '/onboarding/setup'
 } as const;

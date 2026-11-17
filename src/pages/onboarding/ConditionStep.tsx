@@ -26,8 +26,14 @@ const conditions = [
 
 export function ConditionStep({ onNext }: ConditionStepProps) {
   const [selectedCondition, setSelectedCondition] =
-    useState<Condition | null>(null);
+    useState<Condition | null>(() => {
+    const saved = sessionStorage.getItem(STORAGE_KEY);
 
+    return saved === 'good' || saved === 'bad'
+      ? saved
+      : null;
+  });
+  
   const handleSelect = () => {
     if (!selectedCondition) return;
 
@@ -65,7 +71,7 @@ export function ConditionStep({ onNext }: ConditionStepProps) {
           <button
             type="button"
             onClick={handleSkip}
-            className="py-1 text-center text-xs text-text-sub underline underline-offset-2"
+            className="py-1 text-center text-caption text-text-sub underline underline-offset-2"
           >
             오늘은 건너뛸게요
           </button>
@@ -108,10 +114,10 @@ export function ConditionStep({ onNext }: ConditionStepProps) {
                 className={[
                   'flex min-h-[80px] w-full items-center',
                   'gap-4 rounded-[12px] border px-6 py-5',
-                  'text-left transition-colors',
+                  'text-left transition-colors bg-surface',
                   isSelected
-                    ? 'border-primary bg-primary-soft'
-                    : 'border-border bg-surface',
+                    ? 'border-primary'
+                    : 'border-border',
                 ].join(' ')}
               >
                 <span

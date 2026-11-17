@@ -1,3 +1,4 @@
+import { Button } from '../../components/Button';
 import { interests } from './constants';
 
 type ProfileStepProps = {
@@ -141,8 +142,7 @@ export function ProfileStep({
           </p>
         )}
 
-        <button
-          type="button"
+        <Button
           onClick={onProfileSubmit}
           disabled={submitting}
           className="mt-6 h-14 w-full rounded-[10px] bg-primary text-section text-white disabled:opacity-60"
@@ -150,7 +150,7 @@ export function ProfileStep({
           {submitting
             ? '저장 중...'
             : '설정하고 시작하기'}
-        </button>
+        </Button>
 
         <button
           type="button"
