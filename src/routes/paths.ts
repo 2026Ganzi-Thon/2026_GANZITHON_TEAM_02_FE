@@ -8,6 +8,7 @@ export const PATHS = {
   memos: '/memos',
   support: '/support',
   mypage: '/mypage',
+  mypageEdit: '/mypage/edit',
   onboarding: '/onboarding',
   login: '/login',
   signup: '/signup',

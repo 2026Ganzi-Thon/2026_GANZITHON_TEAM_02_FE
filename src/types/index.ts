@@ -37,9 +37,22 @@ export type DailyRecord = {
   feedback?: 'okay' | 'burden';
 };
 
-/** 홈 타이틀용 사용자 정보 (초기 설정·프로필 API가 정해지면 맞춘다) */
+/** 프로필 정보 (초기 설정 및 마이페이지 프로필 API 연동용) */
 export type Profile = {
+  userId?: number;
   nickname: string;
+  region: string | null;
+  interests: string[];
+  initialSetupCompleted?: boolean;
+  loginProvider?: 'KAKAO' | 'NAVER' | string;
+};
+
+/** 프로필 수정 요청 Body (PUT /api/users/me/profile) */
+export type UpdateProfilePayload = {
+  nickname: string;
+  region?: string | null;
+  interests?: string[];
+  interestUndecided?: boolean;
 };
 
 export type Memo = {

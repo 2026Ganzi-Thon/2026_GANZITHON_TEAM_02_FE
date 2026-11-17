@@ -11,6 +11,7 @@ import GoalsPage from '../pages/GoalsPage';
 import MemosPage from '../pages/MemosPage';
 import SupportPage from '../pages/SupportPage';
 import MyPage from '../pages/MyPage';
+import ProfileEditPage from '../pages/ProfileEditPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import { OnboardingSetupPage } from '../pages/onboarding/OnboardingSetupPage';
 
@@ -41,6 +42,7 @@ export default function AppRouter() {
 
         {/* 2) 단독 화면: 페이지가 MobileLayout을 직접 그림 */}
         <Route path={PATHS.goals} element={<GoalsPage />} />
+        <Route path={PATHS.mypageEdit} element={<ProfileEditPage />} />
         <Route path={PATHS.onboarding} element={<OnboardingPage />} />
         <Route path={PATHS.login} element={<LoginPage />} />
         <Route path={PATHS.signup} element={<SignupPage />} />
