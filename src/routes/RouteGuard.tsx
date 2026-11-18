@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { PATHS } from './paths';
 import { useAuthStatus } from '../hooks/useAuthStatus';
 import { MobileLayout } from '../layouts/MobileLayout';
+import { LoadingText } from '../components/LoadingText';
 
 /**
  * 인증이 필요한 라우트 (홈, 마이페이지, 메모, 지원 등)
@@ -16,7 +17,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
     return (
       <MobileLayout>
         <div className="flex h-full items-center justify-center">
-          <p className="text-caption text-text-sub">불러오는 중...</p>
+          <LoadingText text="불러오는 중..." />
         </div>
       </MobileLayout>
     );
@@ -68,7 +69,7 @@ export function RequireSetup({ children }: { children: ReactNode }) {
     return (
       <MobileLayout>
         <div className="flex h-full items-center justify-center">
-          <p className="text-caption text-text-sub">설정 정보를 확인하는 중...</p>
+          <LoadingText text="설정 정보를 확인하는 중..." />
         </div>
       </MobileLayout>
     );

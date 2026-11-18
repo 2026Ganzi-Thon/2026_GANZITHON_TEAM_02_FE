@@ -46,6 +46,13 @@
   --radius-button: 10px;
   --radius-card: 12px;
   --radius-chip: 20px;
+
+  --animate-loading-wave: loading-wave 1.5s ease-in-out infinite;
+
+  @keyframes loading-wave {
+    0%, 70%, 100% { transform: translateY(0); }
+    35% { transform: translateY(-5px); }
+  }
 }
 /*
  * 전역 스타일은 base 레이어에 둔다.

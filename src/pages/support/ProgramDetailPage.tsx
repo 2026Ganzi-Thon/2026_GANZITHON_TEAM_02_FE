@@ -6,6 +6,7 @@ import { getSupportProgramDetail } from '../../api/support';
 
 import type { SupportProgramDetail } from '../../types/support';
 import { Header } from '../../components/Header';
+import { LoadingText } from '../../components/LoadingText';
 
 export function ProgramDetailPage() {
   const { programId } = useParams();
@@ -86,9 +87,9 @@ export function ProgramDetailPage() {
 
         <main className="scrollbar-hide min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-6">
           {loading && (
-            <p role="status" className="py-10 text-center text-sm text-text-sub">
-              정보를 불러오는 중...
-            </p>
+            <div className="py-10 flex justify-center">
+              <LoadingText text="정보를 불러오는 중..." />
+            </div>
           )}
 
           {!loading && error && (

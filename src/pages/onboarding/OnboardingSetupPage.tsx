@@ -6,8 +6,8 @@ import { NeedsStep, type Need } from './NeedsStep';
 import { ProfileStep } from '../login/ProfileStep';
 
 import { MobileLayout } from '../../layouts/MobileLayout';
+import { LoadingText } from '../../components/LoadingText';
 import { getProfile, updateProfile } from '../../api/profile';
-import { skipOnboarding } from '../../api/auth';
 import { saveTodayCondition, saveTodayHelp } from '../../api/condition';
 import { getAccessToken } from '../../utils/authStorage';
 import { UNDECIDED_INTEREST } from '../login/constants';
@@ -28,6 +28,7 @@ export function OnboardingSetupPage() {
   const navigate = useNavigate();
 
   const [step, setStep] = useState<SetupStep>('condition');
+  const [destination, setDestination] = useState<string>(PATHS.home);
 
   // 프로필 입력 상태
   const [nickname, setNickname] = useState('');
@@ -61,9 +62,10 @@ export function OnboardingSetupPage() {
           return;
         }
 
-        setNickname(profile.nickname ?? '');
-        setRegion(profile.region ?? '');
-        setSelectedInterests(profile.interests ?? []);
+        // 초기 설정 화면에서는 이전 입력값이 뜨지 않도록 빈 값으로 시작 (placeholder 노출)
+        setNickname('');
+        setRegion('');
+        setSelectedInterests([]);
       } catch {
         if (active) {
           setError('프로필 정보를 불러오지 못했어요.');
@@ -92,6 +94,10 @@ export function OnboardingSetupPage() {
     if (condition === 'bad') {
       setStep('needs');
     } else {
+      // 괜찮아요 -> 100일 목표 (/goals)
+      // 건너뛰기 -> 홈 (/)
+      const target = condition === 'good' ? PATHS.goals : PATHS.home;
+      setDestination(target);
       setStep('profile');
     }
   };
@@ -106,6 +112,27 @@ export function OnboardingSetupPage() {
         console.warn('도움 선택 저장 실패:', e);
       }
     }
+
+    // 유저플로우 분기:
+    // 작은 목표 정하기 -> 100일 목표 (/goals)
+    // 마음 적기 -> 비공개 메모장 (/memos)
+    // 지원 정보 찾기 -> 프로그램 지원 목록 (/support?tab=programs)
+    // 상담, 기관 연락 안내 -> 상담·기관 목록 (/support?tab=organizations)
+    // 쉬어가기 / 나중에 선택 -> 홈 (/)
+    let target: string;
+    if (need === 'goal') {
+      target = PATHS.goals;
+    } else if (need === 'journal') {
+      target = PATHS.memos;
+    } else if (need === 'information') {
+      target = `${PATHS.support}?tab=programs`;
+    } else if (need === 'counseling') {
+      target = `${PATHS.support}?tab=organizations`;
+    } else {
+      target = PATHS.home;
+    }
+
+    setDestination(target);
     setStep('profile');
   };
 
@@ -145,15 +172,15 @@ export function OnboardingSetupPage() {
 
       const profilePayload = {
         nickname: nickname.trim(),
-        region: region.trim() || null,
+        region: region.trim() || '서울특별시 중구',
         interests: interestUndecided ? [] : selectedInterests,
         interest_undecided: interestUndecided,
       };
 
       await updateProfile(profilePayload);
 
-      // 설정 완료 후 홈으로 이동!
-      navigate(PATHS.home, { replace: true });
+      // 설정 완료 후 컨디션/도움 선택에 따른 목적지 페이지로 이동
+      navigate(destination, { replace: true });
     } catch (err) {
       setError(
         err instanceof Error ? err.message : '프로필 저장 중 문제가 발생했어요.',
@@ -163,16 +190,29 @@ export function OnboardingSetupPage() {
     }
   };
 
-  // 초기 설정 건너뛰기 (POST /api/users/me/onboarding/skip)
+  // 초기 설정 '나중에 선택할게요' (닉네임 필수, 지역은 서울특별시 중구 기본, 관심 분야 빈칸)
   const handleSkip = async () => {
     if (submitting) return;
+
+    const trimmedNickname = nickname.trim();
+    if (!trimmedNickname) {
+      setError('닉네임을 입력해 주세요.');
+      return;
+    }
 
     setError('');
     setSubmitting(true);
 
     try {
-      await skipOnboarding();
-      navigate(PATHS.home, { replace: true });
+      const profilePayload = {
+        nickname: trimmedNickname,
+        region: region.trim() || '서울특별시 중구',
+        interests: [],
+        interest_undecided: false,
+      };
+
+      await updateProfile(profilePayload);
+      navigate(destination, { replace: true });
     } catch (err) {
       setError(
         err instanceof Error ? err.message : '잠시 후 다시 시도해 주세요.',
@@ -186,9 +226,7 @@ export function OnboardingSetupPage() {
     return (
       <MobileLayout>
         <div className="flex h-full items-center justify-center">
-          <p className="text-caption text-text-sub">
-            프로필 정보를 확인하고 있어요...
-          </p>
+          <LoadingText text="프로필 정보를 확인하고 있어요..." />
         </div>
       </MobileLayout>
     );
