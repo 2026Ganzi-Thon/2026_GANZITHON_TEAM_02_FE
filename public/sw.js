@@ -1,5 +1,5 @@
 // Maeeil PWA Service Worker
-const CACHE_NAME = 'maeeil-cache-v1';
+const CACHE_NAME = 'maeeil-cache-v2';
 
 const PRECACHE_ASSETS = [
   '/',
