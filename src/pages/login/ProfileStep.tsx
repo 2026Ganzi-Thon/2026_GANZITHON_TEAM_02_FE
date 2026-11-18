@@ -92,7 +92,7 @@ export function ProfileStep({
             type="text"
             value={region}
             onChange={(e) => onRegionChange(e.target.value)}
-            placeholder="경기도 부천시 소사구"
+            placeholder="예) 경기도 부천시 소사구"
             className="mt-2 h-14 w-full rounded-[12px] border border-primary bg-surface px-4 text-caption text-text-main outline-none placeholder:text-text-sub focus:ring-1 focus:ring-primary"
           />
         </section>

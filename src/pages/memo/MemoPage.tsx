@@ -3,6 +3,7 @@ import { createMemo, deleteMemo, getMemos, updateMemo } from '../../api/memo';
 import { BottomActionArea } from '../../components/BottomActionArea';
 import { Button } from '../../components/Button';
 import { PageTitle } from '../../components/PageTitle';
+import { LoadingText } from '../../components/LoadingText';
 import type { Memo } from '../../types';
 import { MemoCard } from './MemoCard';
 import { MemoDetailModal } from './MemoDetailModal';
@@ -50,7 +51,7 @@ export function MemoPage() {
       <PageTitle label="MY NOTE" title="나만의 메모장" description="정리되지 않은 생각도 괜찮아요. 지금 마음을 편하게 남겨보세요." />
 
       <section aria-label="메모 목록" className="mx-10 flex flex-col items-center gap-[10px] rounded-[10px] bg-surface-muted p-[10px]">
-        {memos === null && <p className="py-10 text-caption text-text-sub">불러오는 중…</p>}
+        {memos === null && <LoadingText text="불러오는 중..." className="py-10" />}
         {memos?.length === 0 && (
           // 빈 목록 화면은 Figma에 없음 → 임시 문구 (디자인 확인 필요)
           <p className="py-10 text-caption text-text-sub">아직 남긴 메모가 없어요.</p>

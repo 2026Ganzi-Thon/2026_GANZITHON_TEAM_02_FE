@@ -7,6 +7,7 @@ import { Button } from '../../components/Button';
 import { PageTitle } from '../../components/PageTitle';
 import { TextButton } from '../../components/TextButton';
 import { WeeklyPlanList } from '../../components/WeeklyPlanList';
+import { LoadingText } from '../../components/LoadingText';
 import { PATHS } from '../../routes/paths';
 import type { ConditionLog, DailyRecord, Goal, Profile } from '../../types';
 import { todayKey } from '../../utils/date';
@@ -60,7 +61,11 @@ export function HomeDashboard() {
   }, []);
 
   if (!data) {
-    return <p className="px-10 py-8 text-caption text-text-sub">불러오는 중...</p>;
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <LoadingText text="불러오는 중..." />
+      </div>
+    );
   }
 
   const { profile, condition, goal, records } = data;

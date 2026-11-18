@@ -29,10 +29,10 @@ export const mockDailyRecords: DailyRecord[] = [
 /** 프로필 정보 — 초기 설정 및 마이페이지 Figma 예시 값 사용 */
 export const mockProfile: Profile = {
   userId: 1,
-  nickname: '구름',
-  region: '경기도 부천시 소사구',
-  interests: ['검정고시 준비', '대학 진학', '마음 돌보기'],
-  initialSetupCompleted: true,
+  nickname: '',
+  region: '',
+  interests: [],
+  initialSetupCompleted: false,
   loginProvider: 'KAKAO',
 };
 

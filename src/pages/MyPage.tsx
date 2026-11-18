@@ -7,6 +7,7 @@ import { Button } from '../components/Button';
 import { Modal } from '../components/Modal';
 import { PATHS } from '../routes/paths';
 import type { Profile } from '../types';
+import { LoadingText } from '../components/LoadingText';
 
 export default function MyPage() {
   const navigate = useNavigate();
@@ -31,8 +32,8 @@ export default function MyPage() {
     return (
       <div className="flex flex-col">
         <PageTitle label="MY PAGE" title="내 정보" />
-        <div className="flex h-40 items-center justify-center text-caption text-text-sub">
-          정보를 불러오는 중...
+        <div className="flex h-40 items-center justify-center">
+          <LoadingText text="정보를 불러오는 중..." />
         </div>
       </div>
     );
@@ -41,7 +42,9 @@ export default function MyPage() {
   const interestsText =
     profile?.interests && profile.interests.length > 0
       ? profile.interests.join(', ')
-      : '선택된 관심 분야 없음';
+      : '';
+      
+  const displayRegion = profile?.region?.trim() || '서울특별시 중구';
 
   return (
     <div className="flex flex-col">
@@ -62,7 +65,7 @@ export default function MyPage() {
                 지역
               </span>
               <span className="text-caption text-text-main">
-                {profile?.region || '지역 미설정'}
+                {displayRegion}
               </span>
             </div>
 

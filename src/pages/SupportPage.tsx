@@ -21,6 +21,7 @@ import type {
   SupportProgram,
   SupportOrganization,
 } from '../types/support';
+import { LoadingText } from '../components/LoadingText';
 
 const PAGE_SIZE = 4;
 
@@ -430,13 +431,10 @@ export default function SupportPage() {
                 />
               ))}
 
-          {loadingTab === activeTab && (
-            <p
-              role="status"
-              className="py-5 text-center text-caption text-text-sub"
-            >
-              목록을 불러오는 중...
-            </p>
+          {(loadingTab === activeTab) && !currentList.loaded && (
+            <div className="py-5 flex justify-center">
+              <LoadingText text="목록을 불러오는 중..." />
+            </div>
           )}
 
           {error && (

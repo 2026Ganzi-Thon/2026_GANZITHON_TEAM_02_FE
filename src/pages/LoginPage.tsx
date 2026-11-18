@@ -6,6 +6,7 @@ import { getAuthMe, signInWithKakao } from '../api/auth';
 import { getAccessToken, saveAccessToken } from '../utils/authStorage';
 import { supabase, isSupabaseConfigured } from '../utils/supabase';
 import { LoginStep } from './login/LoginStep';
+import { LoadingText } from '../components/LoadingText';
 import { PATHS } from '../routes/paths';
 
 export default function LoginPage() {
@@ -90,9 +91,7 @@ export default function LoginPage() {
     return (
       <MobileLayout>
         <div className="flex h-full items-center justify-center">
-          <p className="text-caption text-text-sub">
-            로그인 정보를 확인하고 있어요...
-          </p>
+          <LoadingText text="로그인 정보를 확인하고 있어요..." />
         </div>
       </MobileLayout>
     );

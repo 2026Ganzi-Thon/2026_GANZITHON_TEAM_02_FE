@@ -5,6 +5,7 @@ import { Header } from '../components/Header';
 import { PageTitle } from '../components/PageTitle';
 import { TextField } from '../components/TextField';
 import { Button } from '../components/Button';
+import { LoadingText } from '../components/LoadingText';
 import { MobileLayout } from '../layouts/MobileLayout';
 import { PATHS } from '../routes/paths';
 import { cn } from '../utils/cn';
@@ -96,8 +97,8 @@ export default function ProfileEditPage() {
   if (isLoading) {
     return (
       <MobileLayout header={<Header showBack onBack={() => navigate(-1)} />}>
-        <div className="flex h-64 items-center justify-center text-caption text-text-sub">
-          내 정보를 불러오는 중...
+        <div className="flex h-64 items-center justify-center">
+          <LoadingText text="내 정보를 불러오는 중..." />
         </div>
       </MobileLayout>
     );
