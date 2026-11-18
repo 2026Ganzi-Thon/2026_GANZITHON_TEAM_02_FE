@@ -31,31 +31,31 @@ export function LoginStep({
   error,
 }: LoginStepProps) {
   return (
-    <div className="flex min-h-full flex-col items-center justify-center bg-background mx-10">
-      <div className="flex my-11 flex-col items-center w-full">
+    <div className="flex min-h-full w-full flex-col items-center justify-center bg-background px-6 py-8">
+      <div className="flex w-full max-w-[340px] flex-col items-center">
         <img
           src="/sheep.png"
           alt="서비스 로고"
-          className="mb-5 w-full object-contain"
+          className="mb-4 h-36 w-auto object-contain"
         />
 
-        <h1 className="text-center text-title text-text-sub w-full">
+        <h1 className="text-center text-title text-text-sub">
           <span className="text-primary">메에일</span>과 함께,
           내 속도로 시작해요
         </h1>
       
-        <div className="flex flex-col w-full items-start px-6 py-2">
+        <div className="my-5 flex w-full max-w-[280px] flex-col items-start gap-3">
           {features.map(({ icon: Icon, text }) => (
             <div
               key={text}
-              className="flex items-center px-6 py-2 gap-2"
+              className="flex items-center gap-2.5"
             >
               <img
                 src={Icon}
-                className="w-6 shrink-0 text-primary"
+                className="h-5 w-5 shrink-0 text-primary"
                 aria-hidden="true"
               />
-              <p className="whitespace-nowrap text-caption text-text-main">
+              <p className="text-caption text-text-main">
                 {text}
               </p>
             </div>
@@ -66,18 +66,18 @@ export function LoginStep({
           type="button"
           onClick={onKakaoLogin}
           disabled={submitting}
-          className="mt-5 flex h-[44px] w-full max-w-[280px] items-center justify-left px-6 gap-9 rounded-[12px] bg-[#FEE500] text-[16px] font-md text-[#000000] disabled:opacity-60"
+          className="relative mt-2 flex h-[46px] w-full max-w-[280px] items-center justify-center rounded-[12px] bg-[#FEE500] px-4 text-[16px] font-medium text-[#000000] transition-opacity hover:opacity-95 disabled:opacity-60"
         >
-          <img src={kakao} className='w-6'/>
-          {submitting
-            ? '로그인 중...'
-            : '카카오로 시작하기'}
+          <img src={kakao} className="absolute left-4 h-5 w-5" alt="" />
+          <span>
+            {submitting ? '로그인 중...' : '카카오로 시작하기'}
+          </span>
         </button>
 
         {error && (
           <p
             role="alert"
-            className="mt-3 text-xs text-primary"
+            className="mt-3 text-center text-xs text-primary"
           >
             {error}
           </p>
