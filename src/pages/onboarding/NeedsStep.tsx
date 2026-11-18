@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import {
-  ArrowUpRight,
-  Pencil,
-  Search,
-  Heart,
-  Moon,
-} from 'lucide-react';
+import ArrowUpRight from '../../assets/setup/arrow-right-up.svg'
+import Pencil from '../../assets/setup/pencil.svg'
+import Search from '../../assets/setup/search.svg'
+import Heart from '../../assets/setup/heart.svg'
+import Moon from '../../assets/setup/moon.svg'
 
 import { MobileLayout } from '../../layouts/MobileLayout';
 import { Button } from '../../components/Button';
@@ -114,7 +112,6 @@ export function NeedsStep({ onNext, onBack }: NeedsStepProps) {
         >
           {needs.map((need) => {
             const isSelected = selectedNeed === need.value;
-            const Icon = need.icon;
 
             return (
               <button
@@ -134,14 +131,10 @@ export function NeedsStep({ onNext, onBack }: NeedsStepProps) {
                   aria-hidden="true"
                   className="flex h-8 w-8 shrink-0 items-center justify-center text-primary"
                 >
-                  <Icon
-                    size={26}
-                    strokeWidth={2}
-                    fill={
-                      need.value === 'counseling' || need.value === 'rest'
-                        ? 'currentColor'
-                        : 'none'
-                    }
+                  <img 
+                    src={need.icon}
+                    alt=''
+                    className="h-[26px] w-[26px] object-contain"
                   />
                 </span>
 

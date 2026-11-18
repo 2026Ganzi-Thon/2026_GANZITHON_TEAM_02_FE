@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { MobileLayout } from '../../layouts/MobileLayout';
 import { Button } from '../../components/Button';
 
+import Sun from '../../assets/setup/sun.svg'
+import Cloud from '../../assets/setup/cloud.svg'
+
 type Condition = 'good' | 'bad';
 
 type ConditionStepProps = {
@@ -13,11 +16,13 @@ const conditions = [
     value: 'good',
     title: '괜찮아요',
     description: '오늘의 목표 만나기',
+    iconSrc: Sun,
   },
   {
     value: 'bad',
     title: '힘들어요',
     description: '나에게 필요한 도움 찾기',
+    iconSrc: Cloud,
   },
 ] as const;
 
@@ -111,31 +116,11 @@ export function ConditionStep({ onNext }: ConditionStepProps) {
                   aria-hidden="true"
                   className="flex h-8 w-8 shrink-0 items-center justify-center text-primary"
                 >
-                  {condition.value === 'good' ? (
-                    <svg
-                      width="26"
-                      height="26"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                    >
-                      <circle cx="12" cy="12" r="4" fill="currentColor" />
-                      <path
-                        strokeLinecap="round"
-                        d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"
-                      />
-                    </svg>
-                  ) : (
-                    <svg
-                      width="26"
-                      height="26"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M19 18H6a4 4 0 0 1-.5-7.97A6.5 6.5 0 0 1 18.1 9a4.5 4.5 0 0 1 .9 9Z" />
-                    </svg>
-                  )}
+                  <img
+                    src={condition.iconSrc}
+                    alt=''
+                    className="h-[26px] w-[26px] object-contain"
+                  />
                 </span>
 
                 <span className="flex flex-col gap-2">
