@@ -1,12 +1,51 @@
-import { mockDailyRecords, mockGoal } from '../mocks/data';
+import { mockGoal } from '../mocks/data';
 import type { DailyRecord, Goal, WeeklyPlan } from '../types';
 import { todayKey } from '../utils/date';
 import { createId, mockResponse } from './mockClient';
 
-// TODO(Supabase): 아래 함수들의 내부를 Supabase 쿼리로 교체. 함수 이름·반환 타입은 유지한다.
-// TODO(AI): 주간 계획 초안은 백엔드에서 생성. 프론트에서 AI API 키를 사용하지 않는다.
-let goal: Goal | null = mockGoal;
-let records: DailyRecord[] = [...mockDailyRecords];
+const GOAL_STORAGE_KEY = 'ari_goal_mock';
+const RECORDS_STORAGE_KEY = 'ari_records_mock';
+
+function loadGoalFromStorage(): Goal | null {
+  try {
+    const saved = localStorage.getItem(GOAL_STORAGE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
+function saveGoalToStorage(g: Goal | null) {
+  try {
+    if (g) localStorage.setItem(GOAL_STORAGE_KEY, JSON.stringify(g));
+    else localStorage.removeItem(GOAL_STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+}
+
+function loadRecordsFromStorage(): DailyRecord[] {
+  try {
+    const saved = localStorage.getItem(RECORDS_STORAGE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch {
+    // ignore
+  }
+  return [];
+}
+
+function saveRecordsToStorage(recs: DailyRecord[]) {
+  try {
+    localStorage.setItem(RECORDS_STORAGE_KEY, JSON.stringify(recs));
+  } catch {
+    // ignore
+  }
+}
+
+// 기본 목표 없이 실제 사용자가 등록한 목표를 사용한다.
+let goal: Goal | null = loadGoalFromStorage();
+let records: DailyRecord[] = loadRecordsFromStorage();
 
 export function getGoal(): Promise<Goal | null> {
   return mockResponse(goal);
@@ -28,6 +67,7 @@ type GoalInput = { title: string; description: string; weeklyPlans: WeeklyPlan[]
  */
 export function createGoal(input: GoalInput): Promise<Goal> {
   goal = { id: createId('goal'), startDate: todayKey(), ...input };
+  saveGoalToStorage(goal);
   return mockResponse(goal);
 }
 
@@ -38,6 +78,7 @@ export function saveGoal(input: GoalInput): Promise<Goal> {
     startDate: goal?.startDate ?? todayKey(),
     ...input,
   };
+  saveGoalToStorage(goal);
   return mockResponse(goal);
 }
 
@@ -48,5 +89,6 @@ export function getDailyRecords(goalId: string): Promise<DailyRecord[]> {
 /** 오늘 실천했어요 / 오늘은 쉬어갈게요 / 완료 취소 */
 export function saveDailyRecord(record: DailyRecord): Promise<DailyRecord> {
   records = [...records.filter((r) => !(r.goalId === record.goalId && r.date === record.date)), record];
+  saveRecordsToStorage(records);
   return mockResponse(record);
 }
