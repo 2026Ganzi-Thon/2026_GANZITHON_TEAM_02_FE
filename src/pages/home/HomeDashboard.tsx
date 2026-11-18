@@ -162,6 +162,8 @@ export function HomeDashboard() {
         }}
       />
       <GoalSuccessModal
+        // 열 때마다 새로 마운트해서 팝업1부터 시작
+        key={modal === 'success' ? 'success-open' : 'success-closed'}
         open={modal === 'success'}
         days={sheepDays}
         feedback={todayRecord?.feedback}

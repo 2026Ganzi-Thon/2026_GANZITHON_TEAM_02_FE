@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Button } from '../../components/Button';
 import { Chip } from '../../components/Chip';
 import { Modal } from '../../components/Modal';
@@ -24,17 +25,68 @@ type GoalSuccessModalProps = {
   onUndo: () => void;
 };
 
+/** 팝업1(털 채우기 전)을 보여주는 시간 (Figma 프로토타입 기준 2초) */
+const FILLING_DURATION_MS = 2000;
+
+const TITLE = '오늘의 털 한 칸을 채웠어요!';
+const DESCRIPTION = '작게 시작한 것도 내가 해낸 일이에요.';
+
+/**
+ * 오늘 목표 성공 팝업.
+ * 1) Figma '오늘 목표 성공 팝업1' (118:3113): 오늘 칸이 아직 비어 있는 양 → 잠시 후(또는 탭) 2로 넘어감
+ * 2) Figma '오늘 목표 성공 팝업2' (159:3449): 오늘 칸이 채워진 양 + 피드백 + 버튼
+ *
+ * 열릴 때마다 팝업1부터 시작하도록, 부모에서 열 때마다 key를 바꿔 다시 마운트한다.
+ */
+export function GoalSuccessModal(props: GoalSuccessModalProps) {
+  const [step, setStep] = useState<'filling' | 'filled'>('filling');
+
+  useEffect(() => {
+    if (!props.open || step !== 'filling') return;
+    const timer = window.setTimeout(() => setStep('filled'), FILLING_DURATION_MS);
+    return () => window.clearTimeout(timer);
+  }, [props.open, step]);
+
+  if (step === 'filling') {
+    // 오늘 칸만 '채우기 전'(빈 칸 + 빨간 테두리)으로 보여준다
+    const beforeFill = props.days.map((day) => (day.isToday ? { ...day, status: 'none' as const } : day));
+    return (
+      <Modal
+        open={props.open}
+        // 기록은 이미 저장됐으므로 배경 클릭·Esc는 팝업2로 넘긴다
+        onClose={() => setStep('filled')}
+        title={TITLE}
+        description={DESCRIPTION}
+        // Figma 118:3113: 높이 542px, 위아래 33px·좌우 22px, 내용 세로 가운데 정렬
+        paddingClassName="px-[22px] py-[33px]"
+        className="min-h-[542px] justify-center"
+      >
+        <button
+          type="button"
+          onClick={() => setStep('filled')}
+          aria-label="다음"
+          className="block focus-visible:outline-2 focus-visible:outline-primary-pressed"
+        >
+          <SheepBoard days={beforeFill} className="mx-auto max-w-[276px]" />
+        </button>
+      </Modal>
+    );
+  }
+
+  return <GoalSuccessFilledModal {...props} />;
+}
+
 /**
  * Figma '오늘 목표 성공 팝업2' (159:3449).
  * 버튼이 하나인 팝업이라 ModalActions 대신 Button을 직접 둔다 (취소 버튼 없음, 배경 클릭·Esc로도 닫힘).
  */
-export function GoalSuccessModal({ open, days, feedback, onFeedbackChange, onClose, onUndo }: GoalSuccessModalProps) {
+function GoalSuccessFilledModal({ open, days, feedback, onFeedbackChange, onClose, onUndo }: GoalSuccessModalProps) {
   return (
     <Modal
       open={open}
       onClose={onClose}
-      title="오늘의 털 한 칸을 채웠어요!"
-      description="작게 시작한 것도 내가 해낸 일이에요."
+      title={TITLE}
+      description={DESCRIPTION}
       // Figma 159:3449: 위아래 27px·좌우 22px. 줄 높이 차이 2px만큼 위아래를 1px씩 줄여 높이 542px에 맞춤
       paddingClassName="px-[22px] py-[26px]"
     >

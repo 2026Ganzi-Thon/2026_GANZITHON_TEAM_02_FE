@@ -13,6 +13,8 @@ type ModalProps = {
   children?: ReactNode;
   /** 팝업 틀 여백만 바꿀 때 (기본 'px-6 py-4'). 예: 성공 팝업은 Figma 기준 위아래가 더 넓다 */
   paddingClassName?: string;
+  /** 팝업 틀에 추가할 클래스 (예: 고정 높이·세로 가운데 정렬) */
+  className?: string;
 };
 
 /**
@@ -28,6 +30,7 @@ export function Modal({
   footer,
   children,
   paddingClassName = 'px-6 py-4',
+  className,
 }: ModalProps) {
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -68,6 +71,7 @@ export function Modal({
         className={cn(
           'relative flex w-full max-w-[322px] flex-col gap-2 rounded-card border border-primary-pressed bg-surface-warm text-left focus:outline-none',
           paddingClassName,
+          className,
         )}
       >
         <h2 id={titleId} className="text-section text-text-main">
