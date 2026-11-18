@@ -75,7 +75,7 @@ export default function MyPage() {
                 관심 분야
               </span>
               <span className="text-caption text-text-main">
-                {interestsText}
+                {interestsText?.trim() || '-'}
               </span>
             </div>
           </div>

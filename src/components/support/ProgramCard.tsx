@@ -44,7 +44,7 @@ export function ProgramCard({
               {label}
             </dt>
             <dd className="min-w-0 flex-1 break-words text-[#332C29]">
-              {program[key]}
+              {program[key]?.trim() || '-'}
             </dd>
           </div>
         ))}
