@@ -42,7 +42,7 @@ export function GoalInputStep({ initialTitle = '', loading, onSubmit }: GoalInpu
             </>
           }
           aria-required
-          placeholder="예) 구름"
+          placeholder="예) 나에게 맞는 생활 리듬 만들기"
           value={title}
           onChange={(event) => setTitle(event.target.value)}
           onKeyDown={(event) => {
