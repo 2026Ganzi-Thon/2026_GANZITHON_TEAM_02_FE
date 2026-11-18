@@ -25,8 +25,8 @@ type GoalSuccessModalProps = {
   onUndo: () => void;
 };
 
-/** 팝업1(털 채우기 전)을 보여주는 시간 */
-const FILLING_DURATION_MS = 1200;
+/** 팝업1(털 채우기 전)을 보여주는 시간 (Figma 프로토타입 기준 2초) */
+const FILLING_DURATION_MS = 2000;
 
 const TITLE = '오늘의 털 한 칸을 채웠어요!';
 const DESCRIPTION = '작게 시작한 것도 내가 해낸 일이에요.';
