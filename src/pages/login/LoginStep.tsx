@@ -55,7 +55,7 @@ export function LoginStep({
                 className="w-6 shrink-0 text-primary"
                 aria-hidden="true"
               />
-              <p className="text-caption text-text-main">
+              <p className="whitespace-nowrap text-caption text-text-main">
                 {text}
               </p>
             </div>
