@@ -25,6 +25,7 @@ export async function signInWithKakao(options?: {
       provider: 'kakao',
       options: {
         redirectTo: `${window.location.origin}${PATHS.authCallback}`,
+        scopes: 'profile_nickname profile_image',
       },
     });
     if (error) throw error;
