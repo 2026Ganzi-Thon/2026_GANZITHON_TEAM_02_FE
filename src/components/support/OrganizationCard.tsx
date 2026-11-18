@@ -7,6 +7,9 @@ type OrganizationCardProps = {
 export function OrganizationCard({
   organization,
 }: OrganizationCardProps) {
+  const dtClassName =
+    'w-12 h-5 shrink-0 rounded-[12px] bg-surface-warm text-center';
+
   return (
     <article className="rounded-[12px] border border-border bg-surface px-6 py-2">
       <h3 className="text-section text-text-main">
@@ -16,29 +19,23 @@ export function OrganizationCard({
       <div className="mb-2 h-px bg-border" />
 
       <dl className="flex flex-col gap-2 text-caption text-[#332C29]">
-        <div className="flex items-center gap-2.5">
-          <dt className="shrink-0 rounded-[12px] bg-surface-warm px-3">
-            주소
-          </dt>
-          <dd className="break-words">
+        <div className="flex items-start gap-2.5">
+          <dt className={dtClassName}>주소</dt>
+          <dd className="min-w-0 flex-1 break-words">
             {organization.address}
           </dd>
         </div>
 
         <div className="flex items-center gap-2.5">
-          <dt className="shrink-0 rounded-[12px] bg-surface-warm px-3">
-            운영
-          </dt>
-          <dd className="break-words">
+          <dt className={dtClassName}>운영</dt>
+          <dd className="min-w-0 flex-1 break-words">
             {organization.hours}
           </dd>
         </div>
 
         <div className="flex items-center gap-2.5">
-          <dt className="shrink-0 rounded-[12px] bg-surface-warm px-3">
-            연락처
-          </dt>
-          <dd>
+          <dt className={dtClassName}>연락처</dt>
+          <dd className="min-w-0 flex-1">
             <a
               href={`tel:${organization.phone.replace(/[^0-9+]/g, '')}`}
               className="underline"

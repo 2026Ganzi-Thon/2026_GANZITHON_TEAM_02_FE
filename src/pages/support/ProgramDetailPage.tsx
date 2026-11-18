@@ -116,17 +116,11 @@ export function ProgramDetailPage() {
 
                 <div className='border-t border-border'/>
 
-                <div className="my-5 flex min-h-45 items-center justify-center rounded-lg bg-surface-warm p-6">
-                  <p className="text-center text-sm text-text-sub">
-                    프로그램 이미지
-                  </p>
-                </div>
-
                 <p className="whitespace-pre-line text-caption text-[#332C29]">
                   {program.description}
                 </p>
 
-                <dl className="mt-6 flex flex-col gap-4 border-t border-border pt-5">
+                <dl className="mt-3 flex flex-col gap-4 ">
                   {details.map(([label, value]) => (
                     <div key={label}>
                       <dt className="mb-1 text-section text-text-sub">
