@@ -53,29 +53,10 @@ function createInitialCache(): SupportCache {
   };
 }
 
-// 상세 페이지에서 돌아왔을 때 목록 유지
+// 상세 페이지에서 돌아왔을 때 목록 및 스크롤 위치 유지
 let cachedData: SupportCache = createInitialCache();
 let cachedScrollTop = 0;
-
-// function findScrollContainer(element: HTMLElement) {
-//   let parent = element.parentElement;
-
-//   while (parent) {
-//     const style = getComputedStyle(parent);
-//     const overflow = style.overflowY;
-
-//     if (
-//       overflow === 'auto' ||
-//       overflow === 'scroll'
-//     ) {
-//       return parent;
-//     }
-
-//     parent = parent.parentElement;
-//   }
-
-//   return null;
-// }
+let cachedRegion: string | null = null;
 
 export default function SupportPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -95,14 +76,21 @@ export default function SupportPage() {
 
   const [error, setError] = useState('');
 
-  // 사용자 지역 프로필 불러오기
+  // 사용자 지역 프로필 불러오기 및 지역 변경 시 캐시 초기화
   useEffect(() => {
     let active = true;
     getProfile()
       .then((profile) => {
-        if (active && profile.region) {
-          setUserRegion(profile.region);
+        if (!active) return;
+        const nextRegion = profile.region ?? '';
+        setUserRegion(nextRegion);
+
+        if (cachedRegion !== null && cachedRegion !== nextRegion) {
+          cachedData = createInitialCache();
+          cachedScrollTop = 0;
+          setLists(cachedData);
         }
+        cachedRegion = nextRegion;
       })
       .catch(() => {});
     return () => {
@@ -111,8 +99,7 @@ export default function SupportPage() {
   }, []);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const listScrollRef = useRef<HTMLElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // 요청 중복 방지용
   const requestRef = useRef<{
@@ -230,8 +217,6 @@ export default function SupportPage() {
     const list = cachedData[activeTab];
 
     if (!list.loaded) {
-      // 비동기 작업으로 예약하여 effect 내부의
-      // 동기적 setState 호출을 방지
       const timer = window.setTimeout(() => {
         void loadPage(activeTab, 0);
       }, 0);
@@ -262,7 +247,7 @@ export default function SupportPage() {
         void loadPage(activeTab, currentList.page + 1);
       },
       {
-        root: listScrollRef.current,
+        root: scrollContainerRef.current,
         rootMargin: '200px',
         threshold: 0,
       },
@@ -281,73 +266,20 @@ export default function SupportPage() {
     loadPage,
   ]);
 
-  // 목록 복귀 시 스크롤 복원
-
-  // useEffect(() => {
-  //   const element = containerRef.current;
-  //   if (!element) return;
-
-  //   const scrollContainer = findScrollContainer(element);
-
-  //   const frame = requestAnimationFrame(() => {
-  //     if (scrollContainer) {
-  //       scrollContainer.scrollTop = cachedScrollTop;
-  //     } else {
-  //       window.scrollTo(0, cachedScrollTop);
-  //     }
-  //   });
-
-  //   return () => {
-  //     cancelAnimationFrame(frame);
-
-  //     cachedScrollTop = scrollContainer
-  //       ? scrollContainer.scrollTop
-  //       : window.scrollY;
-  //   };
-  // }, []);
-
-  // SupportPage가 표시되는 동안 MobileLayout의 바깥 스크롤 차단
+  // 상세 페이지 복귀 시 스크롤 위치 복원 및 이탈 시 저장
   useEffect(() => {
-    const scrollElement = listScrollRef.current;
-    if (!scrollElement) return;
+    const scrollEl = scrollContainerRef.current;
+    if (!scrollEl) return;
 
     const frame = requestAnimationFrame(() => {
-      scrollElement.scrollTop = cachedScrollTop;
+      scrollEl.scrollTop = cachedScrollTop;
     });
 
     return () => {
       cancelAnimationFrame(frame);
-      cachedScrollTop = scrollElement.scrollTop;
+      cachedScrollTop = scrollEl.scrollTop;
     };
   }, []);
-
-  // const handleTabChange = (tab: SupportTab) => {
-  //   // 기존 요청 취소
-  //   requestRef.current?.controller.abort();
-  //   requestRef.current = null;
-
-  //   setLoadingTab(null);
-  //   setError('');
-
-  //   cachedScrollTop = 0;
-
-  //   const element = containerRef.current;
-
-  //   if (element) {
-  //     const scrollContainer = findScrollContainer(element);
-
-  //     if (scrollContainer) {
-  //       scrollContainer.scrollTop = 0;
-  //     } else {
-  //       window.scrollTo(0, 0);
-  //     }
-  //   }
-
-  //   setSearchParams(
-  //     tab === 'programs' ? {} : { tab },
-  //     { replace: true },
-  //   );
-  // };
 
   const handleTabChange = (tab: SupportTab) => {
     if (tab === activeTab) return;
@@ -360,8 +292,8 @@ export default function SupportPage() {
 
     cachedScrollTop = 0;
 
-    if (listScrollRef.current) {
-      listScrollRef.current.scrollTop = 0;
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
     }
 
     setSearchParams(
@@ -381,105 +313,104 @@ export default function SupportPage() {
 
   return (
     <div
-      ref={containerRef}
-      className="flex flex-col h-full overflow-hidden bg-background px-10 pt-8"
+      ref={scrollContainerRef}
+      className="scrollbar-hide h-full overflow-y-auto overscroll-contain bg-background px-10 pb-8"
     >
-        <header className="shrink-0 flex flex-col border-b border-border gap-2 pb-8">
-          <p className="text-label text-primary">
-            FIND YOUR SUPPORT
-          </p>
+      {/* 함께 위로 스크롤되어 사라지는 상단 안내 헤더 */}
+      <header className="flex flex-col gap-2 border-b border-border pt-8 pb-8">
+        <p className="text-label text-primary">
+          FIND YOUR SUPPORT
+        </p>
 
-          <h1 className="text-title text-text-main">
-            필요한 도움을 가까이에서 찾아요
-          </h1>
+        <h1 className="text-title text-text-main">
+          필요한 도움을 가까이에서 찾아요
+        </h1>
 
-          <p className="text-caption text-text-sub">
-            나에게 맞는 프로그램과 기관을 살펴보세요.
-          </p>
+        <p className="text-caption text-text-sub">
+          나에게 맞는 프로그램과 기관을 살펴보세요.
+        </p>
 
-          <p className="text-button text-text-main">
-            나의 지역: {userRegion || '지역 미설정'}
-          </p>
+        <p className="text-button text-text-main">
+          나의 지역: {userRegion || ''}
+        </p>
 
-          <p className="text-caption text-primary-pressed">
-            나의 지역은 '내 정보'에서 수정할 수 있어요.
-          </p>
-        </header>
+        <p className="text-caption text-primary-pressed">
+          나의 지역은 '내 정보'에서 수정할 수 있어요.
+        </p>
+      </header>
 
-        <section className="shrink-0 my-6">
-          <SupportTabs
-            activeTab={activeTab}
-            onChange={handleTabChange}
-          />
-        </section>
+      {/* 스크롤 시 레이아웃 Header 바로 밑(top-0)에 고정되어 절대 안 올라가는 탭 */}
+      <section className="sticky top-0 z-10 -mx-10 bg-background px-10 py-6">
+        <SupportTabs
+          activeTab={activeTab}
+          onChange={handleTabChange}
+        />
+      </section>
 
-        <section 
-          ref={listScrollRef}
-          className="scrollbar-hide min-h-0 flex-1 overflow-y-auto overscroll-contain pb-8">
-          <div className='flex flex-col gap-3'>
-            {activeTab === 'programs'
-            ? lists.programs.items.map((program) => (
-                <ProgramCard
-                  key={program.program_id}
-                  program={program}
-                />
-              ))
-            : lists.organizations.items.map((organization) => (
-                <OrganizationCard
-                  key={organization.organization_id}
-                  organization={organization}
-                />
-              ))}
+      {/* 무한 스크롤 목록 */}
+      <section className="flex flex-col gap-3">
+        {activeTab === 'programs'
+          ? lists.programs.items.map((program) => (
+              <ProgramCard
+                key={program.program_id}
+                program={program}
+              />
+            ))
+          : lists.organizations.items.map((organization) => (
+              <OrganizationCard
+                key={organization.organization_id}
+                organization={organization}
+              />
+            ))}
 
-          {(loadingTab === activeTab) && !currentList.loaded && (
-            <div className="py-5 flex justify-center">
-              <LoadingText text="목록을 불러오는 중..." />
-            </div>
-          )}
-
-          {error && (
-            <div
-              role="alert"
-              className="p-5 text-center"
-            >
-              <p className="mb-3 text-sm text-text-sub">
-                {error}
-              </p>
-
-              <button
-                type="button"
-                onClick={handleRetry}
-                className="rounded-sm bg-primary px-5 py-2 text-caption text-surface"
-              >
-                다시 시도
-              </button>
-            </div>
-          )}
-
-          {currentList.loaded &&
-            currentList.items.length === 0 &&
-            !error &&
-            loadingTab === null && (
-              <p className="py-5 text-center text-caption text-text-sub">
-                등록된 정보가 없어요.
-              </p>
-            )}
-
-          <div
-            ref={sentinelRef}
-            aria-hidden="true"
-            className="h-1"
-          />
-
-          {currentList.loaded &&
-            !currentList.hasNext &&
-            currentList.items.length > 0 && (
-              <p className="py-1 text-center text-caption text-text-sub">
-                모든 정보를 확인했어요.
-              </p>
-            )}
+        {loadingTab === activeTab && !currentList.loaded && (
+          <div className="flex justify-center py-5">
+            <LoadingText text="목록을 불러오는 중..." />
           </div>
-        </section>
+        )}
+
+        {error && (
+          <div
+            role="alert"
+            className="p-5 text-center"
+          >
+            <p className="mb-3 text-sm text-text-sub">
+              {error}
+            </p>
+
+            <button
+              type="button"
+              onClick={handleRetry}
+              className="rounded-sm bg-primary px-5 py-2 text-caption text-surface"
+            >
+              다시 시도
+            </button>
+          </div>
+        )}
+
+        {currentList.loaded &&
+          currentList.items.length === 0 &&
+          !error &&
+          loadingTab === null && (
+            <p className="py-5 text-center text-caption text-text-sub">
+              등록된 정보가 없어요.
+            </p>
+          )}
+
+        <div
+          ref={sentinelRef}
+          aria-hidden="true"
+          className="h-1"
+        />
+
+        {currentList.loaded &&
+          !currentList.hasNext &&
+          currentList.items.length > 0 && (
+            <p className="py-1 text-center text-caption text-text-sub">
+              모든 정보를 확인했어요.
+            </p>
+          )}
+      </section>
     </div>
   );
 }
