@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { MobileLayout } from '../layouts/MobileLayout';
 import { getAuthMe, signInWithKakao } from '../api/auth';
 import { getAccessToken, saveAccessToken } from '../utils/authStorage';
-import { supabase, isSupabaseConfigured } from '../utils/supabase';
+import { supabase, USE_SUPABASE } from '../utils/supabase';
 import { LoginStep } from './login/LoginStep';
 import { LoadingText } from '../components/LoadingText';
 import { PATHS } from '../routes/paths';
@@ -24,7 +24,7 @@ export default function LoginPage() {
     const handleAuthCheck = async () => {
       try {
         // 실제 Supabase OAuth 콜백인 경우 세션 처리
-        if (isSupabaseConfigured) {
+        if (USE_SUPABASE) {
           const { data } = await supabase.auth.getSession();
           if (data.session?.access_token) {
             saveAccessToken(data.session.access_token);

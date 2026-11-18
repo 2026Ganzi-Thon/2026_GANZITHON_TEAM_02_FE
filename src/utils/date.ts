@@ -5,6 +5,11 @@ export function todayKey(now = new Date()) {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
+/** 한국 시간 기준 오늘 날짜 (Supabase kst_today()와 같은 기준) */
+export function kstTodayKey(now = new Date()) {
+  return now.toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
+}
+
 /** 메모 카드용: 11.09 | 18:30 */
 export function formatMonthDayTime(iso: string) {
   const date = new Date(iso);

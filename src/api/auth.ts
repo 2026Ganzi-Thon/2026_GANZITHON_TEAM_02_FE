@@ -1,4 +1,4 @@
-import type { ApiResponse, AuthMeData } from '../pages/login/types';
+import type { AuthMeData } from '../pages/login/types';
 import {
   clearAuthSession,
   getAccessToken,
@@ -6,14 +6,10 @@ import {
   saveAccessToken,
   saveAuthUser,
 } from '../utils/authStorage';
-import { isSupabaseConfigured, supabase } from '../utils/supabase';
-import { mockResponse } from './mockClient';
-import { getProfile, updateProfile } from './profile';
-
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
-const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false';
-
 import { PATHS } from '../routes/paths';
+import { USE_SUPABASE, isSupabaseConfigured, supabase, toAppError } from '../utils/supabase';
+import { mockResponse } from './mockClient';
+import { DEFAULT_REGION, getProfile, updateProfile } from './profile';
 
 /**
  * 카카오 OAuth + Supabase Auth 로그인 함수.
@@ -24,7 +20,7 @@ export async function signInWithKakao(options?: {
   isNewUser?: boolean;
   forceMock?: boolean;
 }): Promise<AuthMeData | void> {
-  if (isSupabaseConfigured && !options?.forceMock) {
+  if (USE_SUPABASE && !options?.forceMock) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'kakao',
       options: {
@@ -61,30 +57,35 @@ export async function signInWithKakao(options?: {
 }
 
 /**
- * GET /api/auth/me
- * Supabase 인증 사용자 확인 및 앱 사용자 등록/조회.
+ * 로그인 사용자 확인 + 초기 설정 여부.
+ * Supabase: 세션 사용자 + profiles(로그인 시 트리거로 자동 생성) 조회. 닉네임이 있으면 초기 설정 완료.
  */
 export async function getAuthMe(): Promise<AuthMeData> {
+  if (USE_SUPABASE) {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) {
+      clearAuthSession();
+      throw new Error('로그인 정보가 없습니다.');
+    }
+    // 토큰이 갱신됐을 수 있으므로 최신 access_token으로 맞춰 둔다
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (sessionData.session?.access_token) saveAccessToken(sessionData.session.access_token);
+
+    const profile = await getProfile();
+    const completed = Boolean(profile.initial_setup_completed);
+    return {
+      user_id: 0, // Supabase는 uuid(auth_user_id)로 사용자를 식별한다
+      auth_user_id: data.user.id,
+      login_provider: 'KAKAO',
+      is_new_user: !completed,
+      initial_setup_completed: completed,
+      next_step: completed ? 'HOME' : 'INITIAL_SETUP',
+    };
+  }
+
   const token = getAccessToken();
   if (!token) {
     throw new Error('로그인 정보가 없습니다.');
-  }
-
-  if (!USE_MOCK && API_BASE_URL) {
-    const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('인증 정보를 조회하지 못했습니다.');
-    }
-
-    const result = (await response.json()) as ApiResponse<AuthMeData>;
-    return result.data;
   }
 
   // Mock 응답
@@ -122,19 +123,26 @@ export async function signOut(): Promise<void> {
 }
 
 /**
- * 회원 탈퇴 (DELETE /api/users/me)
+ * 회원 탈퇴.
+ * Supabase: 클라이언트(anon key)로는 auth.users 삭제 권한이 없어서
+ * 본인 데이터(목표·기록·메모)를 지우고 프로필을 초기화한 뒤 로그아웃한다.
+ * TODO(BE): 계정 자체 삭제가 필요하면 security definer RPC 또는 Edge Function 필요
  */
 export async function withdrawUser(): Promise<void> {
-  const token = getAccessToken();
-  if (!USE_MOCK && API_BASE_URL && token) {
-    const res = await fetch(`${API_BASE_URL}/api/users/me`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (!res.ok) {
-      throw new Error('회원 탈퇴 처리에 실패했습니다.');
+  if (USE_SUPABASE) {
+    const { data } = await supabase.auth.getUser();
+    const userId = data.user?.id;
+    if (userId) {
+      // goals 삭제 시 goal_weeks, daily_records는 FK cascade로 함께 삭제됨
+      const goals = await supabase.from('goals').delete().eq('user_id', userId);
+      if (goals.error) throw toAppError(goals.error, '회원 탈퇴 처리에 실패했습니다.');
+      const memos = await supabase.from('memos').delete().eq('user_id', userId);
+      if (memos.error) throw toAppError(memos.error, '회원 탈퇴 처리에 실패했습니다.');
+      const profile = await supabase
+        .from('profiles')
+        .update({ nickname: null, region: null, interests: [], interest_undecided: false })
+        .eq('id', userId);
+      if (profile.error) throw toAppError(profile.error, '회원 탈퇴 처리에 실패했습니다.');
     }
   }
 
@@ -143,28 +151,20 @@ export async function withdrawUser(): Promise<void> {
 }
 
 /**
- * 초기 설정 건너뛰기 (POST /api/users/me/onboarding/skip)
+ * 초기 설정 건너뛰기: 닉네임만 저장하고 지역은 기본값, 관심 분야는 비워 둔다.
  */
 export async function skipOnboarding(payload?: {
   nickname?: string;
   region?: string;
   interests?: string[];
 }): Promise<void> {
-  const token = getAccessToken();
-
-  if (!USE_MOCK && API_BASE_URL && token) {
-    const response = await fetch(`${API_BASE_URL}/api/users/me/onboarding/skip`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload ?? {}),
+  if (USE_SUPABASE) {
+    const current = await getProfile();
+    await updateProfile({
+      nickname: payload?.nickname ?? (current.nickname || '이름 없음'),
+      region: payload?.region ?? current.region ?? DEFAULT_REGION,
+      interests: payload?.interests ?? [],
     });
-
-    if (!response.ok) {
-      throw new Error('건너뛰기 처리에 실패했어요.');
-    }
     return;
   }
 

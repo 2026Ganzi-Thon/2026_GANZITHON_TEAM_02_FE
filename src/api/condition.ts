@@ -1,7 +1,34 @@
 import type { ConditionLog, HelpType } from '../types';
-import { todayKey } from '../utils/date';
-import { getAccessToken } from '../utils/authStorage';
+import { kstTodayKey, todayKey } from '../utils/date';
+import { USE_SUPABASE, supabase, toAppError } from '../utils/supabase';
 import { mockResponse } from './mockClient';
+
+type ConditionRow = {
+  date: string;
+  condition: 'OK' | 'HARD';
+  help_type: HelpType | null;
+};
+
+const CONDITION_COLUMNS = 'date, condition, help_type';
+
+function fromRow(row: ConditionRow): ConditionLog {
+  return {
+    date: row.date,
+    condition: row.condition === 'OK' ? 'good' : 'hard',
+    helpType: row.help_type,
+  };
+}
+
+/** Supabase: 오늘(KST) 내 컨디션 행. RLS로 본인 것만 조회된다 */
+async function fetchTodayConditionRow(): Promise<ConditionRow | null> {
+  const { data, error } = await supabase
+    .from('conditions')
+    .select(CONDITION_COLUMNS)
+    .eq('date', kstTodayKey())
+    .maybeSingle<ConditionRow>();
+  if (error) throw toAppError(error, '컨디션을 조회하지 못했습니다.');
+  return data;
+}
 
 const STORAGE_KEY = 'ari_today_condition_mock';
 
@@ -43,28 +70,14 @@ function saveConditionToStorage(state: StoredConditionState) {
 
 let conditionState: StoredConditionState = loadConditionFromStorage();
 
-/** 오늘 기록한 컨디션 조회 (GET /api/conditions/today) */
+/** 오늘 기록한 컨디션 조회 */
 export async function getTodayCondition(): Promise<ConditionLog | null> {
-  const token = getAccessToken();
-  const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
-  const useMock = import.meta.env.VITE_USE_MOCK !== 'false';
-
-  if (!useMock && apiBaseUrl && token) {
-    const res = await fetch(`${apiBaseUrl}/api/conditions/today`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/json',
-      },
-    });
-    if (!res.ok) throw new Error('컨디션을 조회하지 못했습니다.');
-    const json = await res.json();
-    const data = json.data;
-    if (!data || !data.condition) return null;
-    return {
-      date: data.date,
-      condition: data.condition === 'OK' ? 'good' : 'hard',
-      helpType: data.help_type,
-    };
+  if (USE_SUPABASE) {
+    const row = await fetchTodayConditionRow();
+    if (row) return fromRow(row);
+    // '건너뛰기'는 DB에 저장하지 않으므로 이 기기에서 건너뛴 기록만 로컬에서 확인
+    const local = loadConditionFromStorage();
+    return local.condition === 'skipped' ? { date: local.date, condition: 'skipped', helpType: null } : null;
   }
 
   // 로컬/날짜 확인
@@ -91,16 +104,12 @@ export async function getTodayCondition(): Promise<ConditionLog | null> {
 }
 
 /**
- * 오늘 컨디션 저장 (PUT /api/conditions/today)
+ * 오늘 컨디션 저장 (하루 1회, 재선택 불가 — DB unique(user_id, date))
  * @param condition 'good' / 'OK' (괜찮아요) 또는 'hard' / 'bad' / 'HARD' (힘들어요)
  */
 export async function saveTodayCondition(
   condition: 'good' | 'hard' | 'bad' | 'OK' | 'HARD' | 'skipped',
 ): Promise<ConditionLog> {
-  const token = getAccessToken();
-  const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
-  const useMock = import.meta.env.VITE_USE_MOCK !== 'false';
-
   const isGood = condition === 'good' || condition === 'OK';
   const isSkipped = condition === 'skipped';
   const clientCondition: 'good' | 'hard' | 'skipped' = isSkipped
@@ -110,16 +119,21 @@ export async function saveTodayCondition(
       : 'hard';
   const apiCondition: 'OK' | 'HARD' = isGood ? 'OK' : 'HARD';
 
-  if (!useMock && apiBaseUrl && token && !isSkipped) {
-    const res = await fetch(`${apiBaseUrl}/api/conditions/today`, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ condition: apiCondition }),
-    });
-    if (!res.ok) throw new Error('컨디션 저장에 실패했습니다.');
+  if (USE_SUPABASE && !isSkipped) {
+    const { data, error } = await supabase
+      .from('conditions')
+      .insert({ condition: apiCondition })
+      .select(CONDITION_COLUMNS)
+      .single<ConditionRow>();
+    if (error) {
+      // 23505: 오늘 이미 기록함 (재선택 불가) → 기존 기록을 그대로 돌려준다
+      if (error.code === '23505') {
+        const existing = await fetchTodayConditionRow();
+        if (existing) return fromRow(existing);
+      }
+      throw toAppError(error, '컨디션 저장에 실패했습니다.');
+    }
+    return fromRow(data);
   }
 
   conditionState = {
@@ -138,24 +152,20 @@ export async function saveTodayCondition(
 }
 
 /**
- * 선택한 도움 저장 (PUT /api/conditions/today/help)
+ * 선택한 도움 저장 ('힘들어요'일 때만 가능)
  * @param helpType 'SMALL_GOAL' | 'MEMO' | 'PROGRAM' | 'COUNSELING' | 'REST'
  */
 export async function saveTodayHelp(helpType: HelpType): Promise<ConditionLog> {
-  const token = getAccessToken();
-  const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
-  const useMock = import.meta.env.VITE_USE_MOCK !== 'false';
-
-  if (!useMock && apiBaseUrl && token) {
-    const res = await fetch(`${apiBaseUrl}/api/conditions/today/help`, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ help_type: helpType }),
-    });
-    if (!res.ok) throw new Error('도움 저장에 실패했습니다.');
+  if (USE_SUPABASE) {
+    const { data, error } = await supabase
+      .from('conditions')
+      .update({ help_type: helpType })
+      .eq('date', kstTodayKey())
+      .select(CONDITION_COLUMNS)
+      .maybeSingle<ConditionRow>();
+    if (error) throw toAppError(error, '도움 저장에 실패했습니다.');
+    if (!data) throw new Error('오늘 컨디션을 먼저 선택해 주세요.');
+    return fromRow(data);
   }
 
   conditionState = {
