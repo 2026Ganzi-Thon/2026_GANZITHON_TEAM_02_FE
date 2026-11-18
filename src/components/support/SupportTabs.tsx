@@ -33,7 +33,7 @@ export function SupportTabs({
             aria-pressed={selected}
             onClick={() => onChange(tab.value)}
             className={[
-              'flex-1 rounded-[20px] border px-8 py-2',
+              'flex-1 rounded-[20px] border px-4 py-2 whitespace-nowrap',
               'text-center text-caption transition-colors',
               selected
                 ? 'border-primary-pressed bg-primary-soft text-primary-pressed'

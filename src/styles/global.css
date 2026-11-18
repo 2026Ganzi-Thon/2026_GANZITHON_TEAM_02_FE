@@ -65,11 +65,12 @@
   }
 
   html,
-  body,
-  #root {
+  body {
     margin: 0;
-    min-height: 100%;
+    padding: 0;
     width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
   }
 
   body {
@@ -88,16 +89,25 @@
     font: inherit;
   }
 
+  /* iOS Safari 자동 확대 방지: input/textarea font-size 16px 이상 */
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
   button {
     cursor: pointer;
   }
 
-  /* PC에서 모바일 앱 중앙 정렬 */
+  /* PC 및 개발자 도구에서 모바일 앱 중앙 정렬 */
   #root {
+    width: 100%;
     min-height: 100dvh;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: stretch;
+    overflow-x: hidden;
   }
 
   /* 모바일 앱 컨테이너 */
@@ -105,20 +115,23 @@
     width: 100%;
     max-width: 430px;
     min-height: 100dvh;
+    margin: 0 auto;
     background-color: var(--color-background);
     color: var(--color-text-main);
     position: relative;
-    overflow-x: clip;
+    overflow-x: hidden;
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.08);
   }
 
-  /* 모바일 기기에서는 화면 전체 사용 */
+  /* 모바일 기기(화면 너비 430px 이하)에서는 전체 화면 사용 */
   @media (max-width: 430px) {
     body {
-      background-color: #ffffff;
+      background-color: var(--color-background);
     }
 
     .mobile-container {
-      max-width: none;
+      max-width: 100%;
+      box-shadow: none;
     }
   }
 }
