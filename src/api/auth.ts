@@ -145,7 +145,11 @@ export async function withdrawUser(): Promise<void> {
 /**
  * 초기 설정 건너뛰기 (POST /api/users/me/onboarding/skip)
  */
-export async function skipOnboarding(): Promise<void> {
+export async function skipOnboarding(payload?: {
+  nickname?: string;
+  region?: string;
+  interests?: string[];
+}): Promise<void> {
   const token = getAccessToken();
 
   if (!USE_MOCK && API_BASE_URL && token) {
@@ -155,7 +159,7 @@ export async function skipOnboarding(): Promise<void> {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({}),
+      body: JSON.stringify(payload ?? {}),
     });
 
     if (!response.ok) {
@@ -167,9 +171,9 @@ export async function skipOnboarding(): Promise<void> {
   // Mock: 프로필에 초기 설정 완료 플래그는 false 유지하고 홈 진입 허용
   const current = await getProfile();
   await updateProfile({
-    nickname: current.nickname || '이름 없음',
-    region: current.region,
-    interests: current.interests,
+    nickname: payload?.nickname ?? current.nickname ?? '이름 없음',
+    region: payload?.region ?? current.region,
+    interests: payload?.interests ?? [],
   });
 
   const stored = getStoredAuthUser();

@@ -14,6 +14,8 @@ import { mockResponse } from './mockClient';
 
 const STORAGE_KEY = 'ari_user_profile_mock';
 
+export const DEFAULT_REGION = '서울특별시 중구';
+
 function loadProfileFromStorage(): Profile {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -27,6 +29,9 @@ function loadProfileFromStorage(): Profile {
     ...mockProfile,
     userId: 1,
     user_id: 1,
+    nickname: '',
+    region: '',
+    interests: [],
     initialSetupCompleted: false,
     initial_setup_completed: false,
   };
@@ -60,12 +65,16 @@ export async function getProfile(): Promise<Profile> {
     return json.data;
   }
 
+  const isCompleted = profileState.initialSetupCompleted ?? profileState.initial_setup_completed ?? false;
+  const region = profileState.region?.trim() || (isCompleted ? DEFAULT_REGION : '');
+
   return mockResponse({
     ...profileState,
+    region,
     userId: profileState.userId ?? profileState.user_id ?? 1,
     user_id: profileState.user_id ?? profileState.userId ?? 1,
-    initialSetupCompleted: profileState.initialSetupCompleted ?? profileState.initial_setup_completed ?? false,
-    initial_setup_completed: profileState.initial_setup_completed ?? profileState.initialSetupCompleted ?? false,
+    initialSetupCompleted: isCompleted,
+    initial_setup_completed: isCompleted,
   });
 }
 
@@ -75,8 +84,12 @@ export async function updateProfile(payload: UpdateProfilePayload): Promise<Prof
   const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
   const useMock = import.meta.env.VITE_USE_MOCK !== 'false';
 
+  const isUndecided = payload.interest_undecided ?? payload.interestUndecided ?? false;
+  const finalRegion = payload.region !== undefined
+    ? (payload.region?.trim() || DEFAULT_REGION)
+    : (profileState.region?.trim() || DEFAULT_REGION);
+
   if (!useMock && apiBaseUrl && token) {
-    const isUndecided = payload.interest_undecided ?? payload.interestUndecided ?? false;
     const res = await fetch(`${apiBaseUrl}/api/users/me/profile`, {
       method: 'PUT',
       headers: {
@@ -85,7 +98,7 @@ export async function updateProfile(payload: UpdateProfilePayload): Promise<Prof
       },
       body: JSON.stringify({
         nickname: payload.nickname,
-        region: payload.region,
+        region: finalRegion,
         interests: isUndecided ? [] : payload.interests ?? [],
         interest_undecided: isUndecided,
       }),
@@ -95,13 +108,12 @@ export async function updateProfile(payload: UpdateProfilePayload): Promise<Prof
     return json.data;
   }
 
-  const isUndecided = payload.interest_undecided ?? payload.interestUndecided ?? false;
   const interests = isUndecided ? [] : (payload.interests ?? profileState.interests);
 
   profileState = {
     ...profileState,
     nickname: payload.nickname.trim(),
-    region: payload.region !== undefined ? (payload.region?.trim() || null) : profileState.region,
+    region: finalRegion,
     interests,
     initialSetupCompleted: true,
     initial_setup_completed: true,
