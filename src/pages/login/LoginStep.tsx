@@ -44,7 +44,7 @@ export function LoginStep({
           내 속도로 시작해요
         </h1>
       
-        <div className="my-5 flex w-full max-w-[280px] flex-col items-start gap-3">
+        <div className="my-5 px-5 flex w-full max-w-[280px] flex-col items-start gap-3">
           {features.map(({ icon: Icon, text }) => (
             <div
               key={text}
