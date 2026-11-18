@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MobileLayout } from '../layouts/MobileLayout';
-import { supabase, isSupabaseConfigured } from '../utils/supabase';
+import { supabase, USE_SUPABASE } from '../utils/supabase';
 import { saveAccessToken, saveAuthUser, getStoredAuthUser } from '../utils/authStorage';
 import { getAuthMe } from '../api/auth';
 import { PATHS } from '../routes/paths';
@@ -14,7 +14,7 @@ export default function AuthCallbackPage() {
     let isMounted = true;
 
     async function handleCallback() {
-      if (!isSupabaseConfigured) {
+      if (!USE_SUPABASE) {
         // Supabase 미설정 환경이면 로그인 페이지로 복귀
         navigate(PATHS.login, { replace: true });
         return;
