@@ -1,4 +1,5 @@
 import { Button } from '../../components/Button';
+import { TextField } from '../../components/TextField';
 import { interests } from './constants';
 
 type ProfileStepProps = {
@@ -53,15 +54,13 @@ export function ProfileStep({
 
         {/* 닉네임 */}
         <section className="mt-8">
-          <label
-            htmlFor="nickname"
-            className="text-section text-text-main"
-          >
-            닉네임 <span className="text-primary">*</span>
-          </label>
-
-          <input
+          <TextField
             id="nickname"
+            label={
+              <>
+                닉네임 <span className="text-primary">*</span>
+              </>
+            }
             type="text"
             value={nickname}
             onChange={(e) => {
@@ -70,7 +69,6 @@ export function ProfileStep({
             }}
             placeholder="예) 구름"
             maxLength={20}
-            className="mt-2 h-14 w-full rounded-[12px] border border-primary bg-surface px-4 text-caption text-text-main outline-none placeholder:text-text-sub focus:ring-1 focus:ring-primary"
           />
         </section>
 
@@ -87,13 +85,13 @@ export function ProfileStep({
             지금 생활하는 시·군·구까지 적어주세요. 상세 주소는 필요하지 않아요.
           </p>
 
-          <input
+          <TextField
             id="region"
             type="text"
             value={region}
             onChange={(e) => onRegionChange(e.target.value)}
             placeholder="예) 경기도 부천시 소사구"
-            className="mt-2 h-14 w-full rounded-[12px] border border-primary bg-surface px-4 text-caption text-text-main outline-none placeholder:text-text-sub focus:ring-1 focus:ring-primary"
+            className="mt-2"
           />
         </section>
 
