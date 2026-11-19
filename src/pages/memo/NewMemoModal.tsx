@@ -27,7 +27,7 @@ function NewMemoForm({ saving, onClose, onSave }: Omit<NewMemoModalProps, 'open'
     <>
       <TextArea
         aria-label="메모 내용"
-        // Figma 문구 그대로 (메모용 문구로 바꿀지 디자인 확인 필요)
+        // Figma 신규 메모 입력 팝업 확정 문구
         placeholder="예) 오늘은 무기력한 날이었다."
         value={content}
         onChange={(event) => setContent(event.target.value)}
