@@ -1,4 +1,5 @@
 import type { ConditionLog, DailyRecord, Goal, Memo, Profile } from '../types';
+import { BASE_PLAN } from './scenario';
 
 /**
  * Supabase 연동 전 임시 목업 데이터.
@@ -9,21 +10,15 @@ import type { ConditionLog, DailyRecord, Goal, Memo, Profile } from '../types';
 export const mockGoal: Goal = {
   id: 'goal-1',
   title: '나에게 맞는 생활 리듬 만들기',
-  // Figma 2-2·1-1처럼 쉼표 뒤에서 줄을 바꾼다 (화면은 whitespace-pre-line으로 \n을 줄바꿈으로 표시)
-  description: '일정한 시간에 일어나고,\n짧게라도 공부하는 일상을 만들어요.',
+  // 문구는 하드코딩 데이터 시나리오의 기본 계획 (src/mocks/scenario.ts)
+  ...BASE_PLAN,
   startDate: '2026-10-01',
-  weeklyPlans: [
-    { week: 1, theme: '습관 만들기', task: '아침 9시 기상' },
-    { week: 2, theme: '체력 기르기', task: '운동 주 3회하기' },
-    { week: 3, theme: '공부 시작하기', task: '검정고시 공부하기' },
-    { week: 4, theme: '공부', task: '수능 공부하기' },
-  ],
 };
 
 export const mockDailyRecords: DailyRecord[] = [
-  { goalId: 'goal-1', date: '2026-11-07', todayGoal: '아침 9시 기상', status: 'rest' },
-  { goalId: 'goal-1', date: '2026-11-08', todayGoal: '아침 9시 기상', status: 'rest' },
-  { goalId: 'goal-1', date: '2026-11-09', todayGoal: '아침 9시 기상', status: 'done', feedback: 'okay' },
+  { goalId: 'goal-1', date: '2026-11-07', todayGoal: '아침 9시에 일어나기', status: 'rest' },
+  { goalId: 'goal-1', date: '2026-11-08', todayGoal: '아침 9시에 일어나기', status: 'rest' },
+  { goalId: 'goal-1', date: '2026-11-09', todayGoal: '아침 9시에 일어나기', status: 'done', feedback: 'okay' },
 ];
 
 /** 프로필 정보 — 초기 설정 및 마이페이지 Figma 예시 값 사용 */
