@@ -127,7 +127,7 @@ export function ProgramDetailPage() {
                         {label}
                       </dt>
                       <dd className="whitespace-pre-line break-words text-sm text-text-main">
-                        {value}
+                        {value?.trim() || '-'}
                       </dd>
                     </div>
                   ))}
