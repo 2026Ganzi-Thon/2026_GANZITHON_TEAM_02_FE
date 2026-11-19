@@ -16,7 +16,7 @@ export function MobileLayout({ header, bottom, children }: MobileLayoutProps) {
   return (
     <div className="mobile-container flex h-dvh flex-col">
       {header}
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      <main className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto overflow-x-hidden">{children}</main>
       {bottom}
     </div>
   );
