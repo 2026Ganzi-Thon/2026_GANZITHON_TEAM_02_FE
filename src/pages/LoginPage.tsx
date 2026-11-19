@@ -20,7 +20,7 @@ export default function LoginPage() {
   
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [testAsExistingUser, setTestAsExistingUser] = useState(false);
+  const [testAsExistingUser] = useState(false);
 
   // 1. 기존 로그인 세션 또는 OAuth 리다이렉트 콜백 확인
   useEffect(() => {
@@ -111,7 +111,7 @@ export default function LoginPage() {
           error={error}
         />
 
-        {/* 백엔드 배포 전 Mock 로그인 시뮬레이션용 스위치 (신규 가입 vs 재이용 홈 직행) */}
+        {/* 백엔드 배포 전 Mock 로그인 시뮬레이션용 스위치 (신규 가입 vs 재이용 홈 직행)
         <div className="absolute bottom-10 left-0 right-0 z-10 text-center">
           <label className="inline-flex items-center gap-2 text-xs text-text-sub cursor-pointer select-none">
             <input
@@ -122,7 +122,7 @@ export default function LoginPage() {
             />
             <span>(테스트용) 기존 회원으로 바로 로그인 (홈 진입)</span>
           </label>
-        </div>
+        </div> */}
       </div>
     </MobileLayout>
   );
