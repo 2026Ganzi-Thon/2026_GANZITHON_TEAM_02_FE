@@ -275,9 +275,18 @@ export default function SupportPage() {
       scrollEl.scrollTop = cachedScrollTop;
     });
 
+    // 스크롤할 때마다 현재 위치 저장
+    const saveScroll = () => {
+      cachedScrollTop = scrollEl.scrollTop;
+    };
+
+    scrollEl.addEventListener('scroll', saveScroll, {
+      passive: true,
+    });
+
     return () => {
       cancelAnimationFrame(frame);
-      cachedScrollTop = scrollEl.scrollTop;
+      scrollEl.removeEventListener('scroll', saveScroll);
     };
   }, []);
 
