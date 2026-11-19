@@ -45,11 +45,26 @@ function goalFromRow(row: GoalRow): Goal {
   };
 }
 
+/**
+ * 주차별 주제(볼드, goal_weeks.title)는 어떤 할 일에도 어울리는 고정 문구를 쓴다.
+ * 사용자는 할 일(회색, goal_weeks.description)만 수정한다. (BE·PM 협의, 2026-11-19)
+ */
+export const WEEK_THEMES: Record<WeeklyPlan['week'], string> = {
+  1: '시작하기',
+  2: '익숙해지기',
+  3: '늘려가기',
+  4: '이어가기',
+};
+
+function withFixedThemes(weeklyPlans: WeeklyPlan[]): WeeklyPlan[] {
+  return weeklyPlans.map((plan) => ({ ...plan, theme: WEEK_THEMES[plan.week] }));
+}
+
 function weeksToRows(goalId: number, weeklyPlans: WeeklyPlan[]) {
   return weeklyPlans.map((plan) => ({
     goal_id: goalId,
     week_number: plan.week,
-    title: plan.theme,
+    title: WEEK_THEMES[plan.week],
     description: plan.task,
   }));
 }
@@ -83,12 +98,34 @@ async function fetchActiveGoal(): Promise<Goal | null> {
   return data ? goalFromRow(data) : null;
 }
 
-async function replaceWeeks(goalId: number, weeklyPlans: WeeklyPlan[]) {
-  const removed = await supabase.from('goal_weeks').delete().eq('goal_id', goalId);
-  if (removed.error) throw toAppError(removed.error, '주간 계획 저장에 실패했습니다.');
+/** 새 목표의 1~4주차 계획을 한 번에 insert (한 요청이라 일부만 들어가지 않음) */
+async function insertWeeks(goalId: number, weeklyPlans: WeeklyPlan[]) {
   if (weeklyPlans.length === 0) return;
-  const inserted = await supabase.from('goal_weeks').insert(weeksToRows(goalId, weeklyPlans));
-  if (inserted.error) throw toAppError(inserted.error, '주간 계획 저장에 실패했습니다.');
+  const { error } = await supabase.from('goal_weeks').insert(weeksToRows(goalId, weeklyPlans));
+  if (error) throw toAppError(error, '주간 계획 저장에 실패했습니다.');
+}
+
+/**
+ * 기존 목표의 주간 계획 수정: 주차별로 할 일(description)만 update.
+ * delete → insert는 insert 실패 시 계획이 통째로 사라질 수 있어 쓰지 않는다. (BE 요청)
+ * 혹시 해당 주차 행이 없으면(예전 데이터 등) 그 주차만 insert.
+ */
+async function updateWeeks(goalId: number, weeklyPlans: WeeklyPlan[]) {
+  const results = await Promise.all(
+    weeklyPlans.map((plan) =>
+      supabase
+        .from('goal_weeks')
+        .update({ description: plan.task })
+        .eq('goal_id', goalId)
+        .eq('week_number', plan.week)
+        .select('week_number'),
+    ),
+  );
+  const failed = results.find((result) => result.error);
+  if (failed?.error) throw toAppError(failed.error, '주간 계획 저장에 실패했습니다.');
+
+  const missing = weeklyPlans.filter((_, index) => (results[index].data ?? []).length === 0);
+  await insertWeeks(goalId, missing);
 }
 
 const GOAL_STORAGE_KEY = 'ari_goal_mock';
@@ -146,7 +183,7 @@ export function getGoal(): Promise<Goal | null> {
  */
 export function requestWeeklyPlanDraft(title: string): Promise<Pick<Goal, 'title' | 'description' | 'weeklyPlans'>> {
   return mockResponse(
-    { title, description: mockGoal.description, weeklyPlans: mockGoal.weeklyPlans },
+    { title, description: mockGoal.description, weeklyPlans: withFixedThemes(mockGoal.weeklyPlans) },
     800,
   );
 }
@@ -159,9 +196,20 @@ type GoalInput = { title: string; description: string; weeklyPlans: WeeklyPlan[]
  */
 export async function createGoal(input: GoalInput): Promise<Goal> {
   if (USE_SUPABASE) {
-    // 사용자당 ACTIVE 목표는 1개 → 기존 목표를 먼저 종료
-    const ended = await supabase.from('goals').update({ status: 'ENDED' }).eq('status', 'ACTIVE');
+    // 사용자당 ACTIVE 목표는 1개 → 기존 목표를 먼저 종료 (실패 시 되돌릴 수 있게 id 기억)
+    const ended = await supabase
+      .from('goals')
+      .update({ status: 'ENDED' })
+      .eq('status', 'ACTIVE')
+      .select('id')
+      .returns<{ id: number }[]>();
     if (ended.error) throw toAppError(ended.error, '목표 저장에 실패했습니다.');
+    const previousIds = (ended.data ?? []).map((row) => row.id);
+    const restorePrevious = async () => {
+      if (previousIds.length > 0) {
+        await supabase.from('goals').update({ status: 'ACTIVE' }).in('id', previousIds);
+      }
+    };
 
     const { data, error } = await supabase
       .from('goals')
@@ -173,15 +221,25 @@ export async function createGoal(input: GoalInput): Promise<Goal> {
       })
       .select('id')
       .single<{ id: number }>();
-    if (error) throw toAppError(error, '목표 저장에 실패했습니다.');
+    if (error) {
+      await restorePrevious();
+      throw toAppError(error, '목표 저장에 실패했습니다.');
+    }
 
-    await replaceWeeks(data.id, input.weeklyPlans);
+    try {
+      await insertWeeks(data.id, input.weeklyPlans);
+    } catch (weeksError) {
+      // 주간 계획 없이 목표만 남지 않도록 방금 만든 목표를 지우고 이전 목표를 되살린다
+      await supabase.from('goals').delete().eq('id', data.id);
+      await restorePrevious();
+      throw weeksError;
+    }
     const created = await fetchActiveGoal();
     if (!created) throw new Error('목표 저장에 실패했습니다.');
     return created;
   }
 
-  goal = { id: createId('goal'), startDate: todayKey(), ...input };
+  goal = { id: createId('goal'), startDate: todayKey(), ...input, weeklyPlans: withFixedThemes(input.weeklyPlans) };
   saveGoalToStorage(goal);
   return mockResponse(goal);
 }
@@ -199,7 +257,7 @@ export async function saveGoal(input: GoalInput): Promise<Goal> {
       .eq('id', goalId);
     if (error) throw toAppError(error, '목표 저장에 실패했습니다.');
 
-    await replaceWeeks(goalId, input.weeklyPlans);
+    await updateWeeks(goalId, input.weeklyPlans);
     const saved = await fetchActiveGoal();
     if (!saved) throw new Error('목표 저장에 실패했습니다.');
     return saved;
@@ -209,6 +267,7 @@ export async function saveGoal(input: GoalInput): Promise<Goal> {
     id: goal?.id ?? createId('goal'),
     startDate: goal?.startDate ?? todayKey(),
     ...input,
+    weeklyPlans: withFixedThemes(input.weeklyPlans),
   };
   saveGoalToStorage(goal);
   return mockResponse(goal);

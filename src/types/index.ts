@@ -23,7 +23,7 @@ export type ConditionLog = {
 
 export type WeeklyPlan = {
   week: 1 | 2 | 3 | 4;
-  theme: string; // 습관 만들기
+  theme: string; // 주차별 고정 주제 (WEEK_THEMES: 시작하기 / 익숙해지기 / 늘려가기 / 이어가기)
   task: string; // 아침 9시 기상
 };
 

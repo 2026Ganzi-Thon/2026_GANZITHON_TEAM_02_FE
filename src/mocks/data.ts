@@ -13,10 +13,10 @@ export const mockGoal: Goal = {
   description: '일정한 시간에 일어나고,\n짧게라도 공부하는 일상을 만들어요.',
   startDate: '2026-10-01',
   weeklyPlans: [
-    { week: 1, theme: '습관 만들기', task: '아침 9시 기상' },
-    { week: 2, theme: '체력 기르기', task: '운동 주 3회하기' },
-    { week: 3, theme: '공부 시작하기', task: '검정고시 공부하기' },
-    { week: 4, theme: '공부', task: '수능 공부하기' },
+    { week: 1, theme: '시작하기', task: '아침 9시 기상' },
+    { week: 2, theme: '익숙해지기', task: '운동 주 3회하기' },
+    { week: 3, theme: '늘려가기', task: '검정고시 공부하기' },
+    { week: 4, theme: '이어가기', task: '수능 공부하기' },
   ],
 };
 
