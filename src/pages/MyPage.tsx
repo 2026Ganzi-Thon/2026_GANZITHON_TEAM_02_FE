@@ -121,7 +121,7 @@ export default function MyPage() {
       <Modal
         open={isPrivacyModalOpen}
         onClose={() => setIsPrivacyModalOpen(false)}
-        title="개인정보 처리 안내 (수정 필요)"
+        title="개인정보 처리 안내"
         footer={
           <div className="flex w-full justify-end">
             <Button

@@ -43,7 +43,7 @@ export function ProgramCard({
             <dt className="inline-flex h-5 w-12 shrink-0 items-center justify-center rounded-[12px] bg-surface-warm text-[#332C29]">
               {label}
             </dt>
-            <dd className="min-w-0 flex-1 break-words text-[#332C29]">
+            <dd className="min-w-0 flex-1 break-words text-[#332C29] leading-5">
               {program[key]?.trim() || '-'}
             </dd>
           </div>

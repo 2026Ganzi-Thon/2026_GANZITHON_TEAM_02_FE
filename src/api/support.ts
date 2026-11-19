@@ -1,3 +1,4 @@
+
 import { getProfile } from './profile';
 import { USE_SUPABASE, supabase } from '../utils/supabase';
 import type {
@@ -17,7 +18,7 @@ import {
   paginateMockData,
 } from '../mocks/support';
 
-/** Supabase 미설정 또는 VITE_USE_MOCK=true 이면 목업 */
+/** Supabase 미설정이면 Mock 사용 */
 const USE_MOCK = !USE_SUPABASE;
 
 const mockDelay = () =>
@@ -34,7 +35,79 @@ export class SupportApiError extends Error {
 }
 
 /* ---------------------------------------------------------
- * Supabase: support_programs / support_organizations (비로그인 포함 누구나 조회)
+ * 지역 필터
+ * 지원 지역: 경기도 부천시 / 경기도 화성시
+ * --------------------------------------------------------- */
+
+type SupportRegion = '경기도 부천시' | '경기도 화성시';
+
+function normalizeRegion(
+  region?: string | null,
+): SupportRegion | null {
+  if (!region) return null;
+
+  if (region.includes('부천시')) {
+    return '경기도 부천시';
+  }
+
+  if (region.includes('화성시')) {
+    return '경기도 화성시';
+  }
+
+  return null;
+}
+
+/**
+ * Supabase 지역 검색 조건 생성
+ *
+ * 프로그램: region
+ * 기관: region 또는 address
+ */
+function regionFilter(
+  region: SupportRegion,
+  columns: string[],
+): string {
+  const city =
+    region === '경기도 부천시' ? '부천시' : '화성시';
+
+  return columns
+    .map((column) => `${column}.ilike.*${city}*`)
+    .join(',');
+}
+
+/**
+ * 요청에 region이 있으면 해당 값을 사용하고,
+ * 없으면 사용자 프로필에서 지역을 가져온다.
+ */
+async function resolveRegion(
+  region?: string,
+): Promise<SupportRegion> {
+  let effectiveRegion = normalizeRegion(region);
+
+  if (!effectiveRegion && !region) {
+    try {
+      const profile = await getProfile();
+      effectiveRegion = normalizeRegion(profile.region);
+    } catch {
+      throw new SupportApiError(
+        500,
+        '지역 정보를 불러오지 못했습니다.',
+      );
+    }
+  }
+
+  if (!effectiveRegion) {
+    throw new SupportApiError(
+      400,
+      '지원 지역을 설정해 주세요.',
+    );
+  }
+
+  return effectiveRegion;
+}
+
+/* ---------------------------------------------------------
+ * Supabase: support_programs / support_organizations
  * --------------------------------------------------------- */
 
 type ProgramRow = {
@@ -69,78 +142,95 @@ type OrganizationRow = {
   registered_at: string;
 };
 
-function throwIfError(error: { message: string; code?: string } | null, message: string) {
+function throwIfError(
+  error: { message: string; code?: string } | null,
+  message: string,
+) {
   if (!error) return;
+
   console.error('[Supabase]', error.code, error.message);
   throw new SupportApiError(500, message);
 }
 
-/** '경기도 부천시 소사구' → 단어별 부분 일치 OR 조건 (목업의 지역 매칭과 같은 기준) */
-function regionFilter(region: string | undefined, columns: string[]) {
-  const parts = (region ?? '')
-    .split(' ')
-    .map((part) => part.replace(/[,()%*]/g, '').trim())
-    .filter(Boolean);
-  if (parts.length === 0) return null;
-  return parts.flatMap((part) => columns.map((column) => `${column}.ilike.*${part}*`)).join(',');
-}
+/* ---------------------------------------------------------
+ * 페이지네이션
+ * --------------------------------------------------------- */
 
 function pageRange(params: SupportListParams) {
   const page = Math.max(0, params.page ?? 0);
   const size = Math.max(1, params.size ?? 10);
-  // 다음 페이지 존재 여부를 알기 위해 1개 더 조회
-  return { page, size, from: page * size, to: page * size + size };
+
+  // 다음 페이지 존재 여부를 확인하기 위해 1개 더 조회
+  return {
+    page,
+    size,
+    from: page * size,
+    to: page * size + size,
+  };
 }
+
+/* ---------------------------------------------------------
+ * 공통 목록 조회
+ * --------------------------------------------------------- */
 
 async function fetchList<Row>(
   table: 'support_programs' | 'support_organizations',
   columns: string,
   regionColumns: string[],
   params: SupportListParams,
-  region: string | undefined,
+  region: SupportRegion,
   signal?: AbortSignal,
-): Promise<{ rows: Row[]; page: number; has_next: boolean }> {
+): Promise<{
+  rows: Row[];
+  page: number;
+  has_next: boolean;
+}> {
   const { page, size, from, to } = pageRange(params);
 
-  const run = async (withRegion: boolean) => {
-    let query = supabase
-      .from(table)
-      .select(columns)
-      .order('registered_at', { ascending: false })
-      .order('id', { ascending: false })
-      .range(from, to);
-    const filter = withRegion ? regionFilter(region, regionColumns) : null;
-    if (filter) query = query.or(filter);
-    if (signal) query = query.abortSignal(signal);
-    const { data, error } = await query.returns<Row[]>();
-    throwIfError(error, '데이터를 불러오지 못했습니다.');
-    return data ?? [];
+  let query = supabase
+    .from(table)
+    .select(columns)
+    .or(regionFilter(region, regionColumns))
+    .order('registered_at', { ascending: false })
+    .order('id', { ascending: false })
+    .range(from, to);
+
+  if (signal) {
+    query = query.abortSignal(signal);
+  }
+
+  const { data, error } = await query.returns<Row[]>();
+
+  throwIfError(error, '데이터를 불러오지 못했습니다.');
+
+  const rows = data ?? [];
+
+  // 해당 지역 데이터가 없어도 전체 목록으로 대체하지 않음
+  return {
+    rows: rows.slice(0, size),
+    page,
+    has_next: rows.length > size,
   };
-
-  let rows = await run(true);
-  // 목업과 같이: 내 지역 결과가 하나도 없으면 전체 목록을 보여준다
-  if (rows.length === 0 && page === 0 && region) rows = await run(false);
-
-  return { rows: rows.slice(0, size), page, has_next: rows.length > size };
 }
 
-const PROGRAM_LIST_COLUMNS = 'id, title, region, target, schedule, place, cost, registered_at';
-const ORGANIZATION_LIST_COLUMNS = 'id, name, services, address, hours, phone, registered_at, official_url';
+const PROGRAM_LIST_COLUMNS =
+  'id, title, region, target, schedule, place, cost, registered_at';
+
+const ORGANIZATION_LIST_COLUMNS =
+  'id, name, services, address, hours, phone, registered_at, official_url';
+
+/* ---------------------------------------------------------
+ * 프로그램 목록 조회
+ * --------------------------------------------------------- */
 
 export async function getSupportPrograms(
   params: SupportListParams = {},
   signal?: AbortSignal,
-) {
-  let effectiveRegion = params.region;
-  if (!effectiveRegion) {
-    try {
-      const userProfile = await getProfile();
-      if (userProfile.region) {
-        effectiveRegion = userProfile.region;
-      }
-    } catch {
-      // ignore
-    }
+): Promise<SupportListResponse<SupportProgram>> {
+  const region = await resolveRegion(params.region);
+
+  if (signal?.aborted) {
+    throw new DOMException('Aborted', 'AbortError');
   }
 
   if (USE_MOCK) {
@@ -150,26 +240,27 @@ export async function getSupportPrograms(
       throw new DOMException('Aborted', 'AbortError');
     }
 
-    const filtered = effectiveRegion
-      ? mockPrograms.filter((program) => {
-          // 시/도 또는 시/군/구 단위 매칭 지원
-          const parts = effectiveRegion!.split(' ').filter(Boolean);
-          return parts.some((p) => program.region.includes(p)) || program.region.includes(effectiveRegion!);
-        })
-      : mockPrograms;
+    const city =
+      region === '경기도 부천시' ? '부천시' : '화성시';
 
-    return paginateMockData(filtered.length > 0 ? filtered : mockPrograms, params);
+    const filtered = mockPrograms.filter((program) =>
+      program.region.includes(city),
+    );
+
+    return paginateMockData(filtered, params);
   }
 
-  const { rows, page, has_next } = await fetchList<ProgramRow>(
-    'support_programs',
-    PROGRAM_LIST_COLUMNS,
-    ['region'],
-    params,
-    effectiveRegion,
-    signal,
-  );
-  const result: SupportListResponse<SupportProgram> = {
+  const { rows, page, has_next } =
+    await fetchList<ProgramRow>(
+      'support_programs',
+      PROGRAM_LIST_COLUMNS,
+      ['region'],
+      params,
+      region,
+      signal,
+    );
+
+  return {
     items: rows.map((row) => ({
       program_id: row.id,
       title: row.title,
@@ -178,18 +269,21 @@ export async function getSupportPrograms(
       schedule: row.schedule ?? '',
       place: row.place ?? '',
       cost: row.cost ?? '',
-      registered_at: row.registered_at,
+      registered_at: row.registered_at ?? row.registered_at,
     })),
     page,
     has_next,
   };
-  return result;
 }
+
+/* ---------------------------------------------------------
+ * 프로그램 상세 조회
+ * --------------------------------------------------------- */
 
 export async function getSupportProgramDetail(
   programId: number,
   signal?: AbortSignal,
-) {
+): Promise<SupportProgramDetail> {
   if (USE_MOCK) {
     await mockDelay();
 
@@ -211,13 +305,31 @@ export async function getSupportProgramDetail(
     return program;
   }
 
-  let query = supabase.from('support_programs').select('*').eq('id', programId);
-  if (signal) query = query.abortSignal(signal);
-  const { data, error } = await query.maybeSingle<ProgramRow>();
-  throwIfError(error, '프로그램 정보를 불러오지 못했습니다.');
-  if (!data) throw new SupportApiError(404, '프로그램을 찾을 수 없습니다.');
+  let query = supabase
+    .from('support_programs')
+    .select('*')
+    .eq('id', programId);
 
-  const detail: SupportProgramDetail = {
+  if (signal) {
+    query = query.abortSignal(signal);
+  }
+
+  const { data, error } =
+    await query.maybeSingle<ProgramRow>();
+
+  throwIfError(
+    error,
+    '프로그램 정보를 불러오지 못했습니다.',
+  );
+
+  if (!data) {
+    throw new SupportApiError(
+      404,
+      '프로그램을 찾을 수 없습니다.',
+    );
+  }
+
+  return {
     program_id: data.id,
     title: data.title,
     description: data.description ?? '',
@@ -231,23 +343,20 @@ export async function getSupportProgramDetail(
     application_method: data.application_method ?? '',
     official_url: data.official_url,
   };
-  return detail;
 }
+
+/* ---------------------------------------------------------
+ * 기관 목록 조회
+ * --------------------------------------------------------- */
 
 export async function getSupportOrganizations(
   params: SupportListParams = {},
   signal?: AbortSignal,
-) {
-  let effectiveRegion = params.region;
-  if (!effectiveRegion) {
-    try {
-      const userProfile = await getProfile();
-      if (userProfile.region) {
-        effectiveRegion = userProfile.region;
-      }
-    } catch {
-      // ignore
-    }
+): Promise<SupportListResponse<SupportOrganization>> {
+  const region = await resolveRegion(params.region);
+
+  if (signal?.aborted) {
+    throw new DOMException('Aborted', 'AbortError');
   }
 
   if (USE_MOCK) {
@@ -257,27 +366,28 @@ export async function getSupportOrganizations(
       throw new DOMException('Aborted', 'AbortError');
     }
 
-    // 기관 목록 응답에는 region 필드가 없으므로
-    // Mock에서는 주소를 기준으로 지역 필터링
-    const filtered = effectiveRegion
-      ? mockOrganizations.filter((organization) => {
-          const parts = effectiveRegion!.split(' ').filter(Boolean);
-          return parts.some((p) => organization.address.includes(p)) || organization.address.includes(effectiveRegion!);
-        })
-      : mockOrganizations;
+    const city =
+      region === '경기도 부천시' ? '부천시' : '화성시';
 
-    return paginateMockData(filtered.length > 0 ? filtered : mockOrganizations, params);
+    const filtered = mockOrganizations.filter(
+      (organization) =>
+        organization.address.includes(city),
+    );
+
+    return paginateMockData(filtered, params);
   }
 
-  const { rows, page, has_next } = await fetchList<OrganizationRow>(
-    'support_organizations',
-    ORGANIZATION_LIST_COLUMNS + ', region',
-    ['region', 'address'],
-    params,
-    effectiveRegion,
-    signal,
-  );
-  const result: SupportListResponse<SupportOrganization> = {
+  const { rows, page, has_next } =
+    await fetchList<OrganizationRow>(
+      'support_organizations',
+      ORGANIZATION_LIST_COLUMNS + ', region',
+      ['region', 'address'],
+      params,
+      region,
+      signal,
+    );
+
+  return {
     items: rows.map((row) => ({
       organization_id: row.id,
       name: row.name,
@@ -291,13 +401,16 @@ export async function getSupportOrganizations(
     page,
     has_next,
   };
-  return result;
 }
+
+/* ---------------------------------------------------------
+ * 기관 상세 조회
+ * --------------------------------------------------------- */
 
 export async function getSupportOrganizationDetail(
   organizationId: number,
   signal?: AbortSignal,
-) {
+): Promise<SupportOrganizationDetail> {
   if (USE_MOCK) {
     await mockDelay();
 
@@ -319,13 +432,31 @@ export async function getSupportOrganizationDetail(
     return organization;
   }
 
-  let query = supabase.from('support_organizations').select('*').eq('id', organizationId);
-  if (signal) query = query.abortSignal(signal);
-  const { data, error } = await query.maybeSingle<OrganizationRow>();
-  throwIfError(error, '기관 정보를 불러오지 못했습니다.');
-  if (!data) throw new SupportApiError(404, '기관을 찾을 수 없습니다.');
+  let query = supabase
+    .from('support_organizations')
+    .select('*')
+    .eq('id', organizationId);
 
-  const detail: SupportOrganizationDetail = {
+  if (signal) {
+    query = query.abortSignal(signal);
+  }
+
+  const { data, error } =
+    await query.maybeSingle<OrganizationRow>();
+
+  throwIfError(
+    error,
+    '기관 정보를 불러오지 못했습니다.',
+  );
+
+  if (!data) {
+    throw new SupportApiError(
+      404,
+      '기관을 찾을 수 없습니다.',
+    );
+  }
+
+  return {
     organization_id: data.id,
     name: data.name,
     description: data.description ?? '',
@@ -338,5 +469,4 @@ export async function getSupportOrganizationDetail(
     reservation_required: data.reservation_required,
     official_url: data.official_url,
   };
-  return detail;
 }
