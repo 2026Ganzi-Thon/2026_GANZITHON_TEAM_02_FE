@@ -7,6 +7,11 @@ type OrganizationCardProps = {
 export function OrganizationCard({
   organization,
 }: OrganizationCardProps) {
+  const dtClassName =
+    'w-12 h-5 shrink-0 rounded-[12px] bg-surface-warm text-center';
+
+  const phone = organization.phone?.trim();
+
   return (
     <article className="rounded-[12px] border border-border bg-surface px-6 py-2">
       <h3 className="text-section text-text-main">
@@ -16,35 +21,33 @@ export function OrganizationCard({
       <div className="mb-2 h-px bg-border" />
 
       <dl className="flex flex-col gap-2 text-caption text-[#332C29]">
-        <div className="flex items-center gap-2.5">
-          <dt className="shrink-0 rounded-[12px] bg-surface-warm px-3">
-            주소
-          </dt>
-          <dd className="break-words">
-            {organization.address}
+        <div className="flex items-start gap-2.5">
+          <dt className={dtClassName}>주소</dt>
+          <dd className="min-w-0 flex-1 break-words">
+            {organization.address?.trim() || '-'}
           </dd>
         </div>
 
         <div className="flex items-center gap-2.5">
-          <dt className="shrink-0 rounded-[12px] bg-surface-warm px-3">
-            운영
-          </dt>
-          <dd className="break-words">
-            {organization.hours}
+          <dt className={dtClassName}>운영</dt>
+          <dd className="min-w-0 flex-1 break-words">
+            {organization.hours?.trim() || '-'}
           </dd>
         </div>
 
         <div className="flex items-center gap-2.5">
-          <dt className="shrink-0 rounded-[12px] bg-surface-warm px-3">
-            연락처
-          </dt>
-          <dd>
-            <a
-              href={`tel:${organization.phone.replace(/[^0-9+]/g, '')}`}
-              className="underline"
-            >
-              {organization.phone}
-            </a>
+          <dt className={dtClassName}>연락처</dt>
+          <dd className="min-w-0 flex-1">
+            {phone ? (
+              <a
+                href={`tel:${phone.replace(/[^0-9+]/g, '')}`}
+                className="underline"
+              >
+                {phone}
+              </a>
+            ) : (
+              '-'
+            )}
           </dd>
         </div>
       </dl>

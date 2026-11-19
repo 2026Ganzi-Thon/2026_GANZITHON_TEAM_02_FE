@@ -44,8 +44,8 @@ export default function LoginPage() {
         if (authMe.next_step === 'INITIAL_SETUP') {
           navigate(PATHS.onboardingSetup, { replace: true });
         } else {
-          //navigate(PATHS.home, { replace: true });
-          navigate(PATHS.onboardingSetup, { replace: true });
+          navigate(PATHS.home, { replace: true });
+          //navigate(PATHS.onboardingSetup, { replace: true });
         }
       } catch (e) {
         console.error('인증 확인 중 오류:', e);
