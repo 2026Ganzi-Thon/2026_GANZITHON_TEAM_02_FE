@@ -123,11 +123,12 @@ export function ConditionStep({ onNext }: ConditionStepProps) {
                   />
                 </span>
 
-                <span className="flex flex-col gap-2">
-                  <span className="text-sm font-semibold text-text-main">
+                <span className="flex flex-col gap-1">
+                  <span className="text-button font-semibold text-text-main">
                     {condition.title}
                   </span>
-                  <span className="text-xs text-text-sub">
+
+                  <span className="text-caption text-text-sub">
                     {condition.description}
                   </span>
                 </span>
