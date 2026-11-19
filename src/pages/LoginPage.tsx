@@ -12,7 +12,12 @@ import { PATHS } from '../routes/paths';
 export default function LoginPage() {
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(true);
+  const hasStoredSession = () =>
+  Boolean(getAccessToken()) ||
+  Object.keys(localStorage).some((k) => k.startsWith('sb-') && k.endsWith('-auth-token'));
+
+  const [loading, setLoading] = useState(hasStoredSession) 
+  
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [testAsExistingUser, setTestAsExistingUser] = useState(false);

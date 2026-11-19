@@ -10,7 +10,10 @@ type WeeklyPlanEditModalProps = {
   onSave: (plans: WeeklyPlan[]) => void;
 };
 
-/** Figma '주간 계획 수정 팝업' (180:12211) — 주차별 할 일만 고친다 (주제는 그대로) */
+/**
+ * Figma '주간 계획 수정 팝업' (180:12211) — 주차별 할 일만 입력받는다.
+ * 주차 제목은 저장할 때 하드코딩 시나리오(경우 2)에 따라 바뀐다 (applyWeeklyPlanEdit).
+ */
 export function WeeklyPlanEditModal({ open, plans, onClose, onSave }: WeeklyPlanEditModalProps) {
   return (
     <Modal open={open} onClose={onClose} title="주간 계획 수정하기" description="이번 4주의 계획을 내 상황에 맞게 바꿔주세요.">

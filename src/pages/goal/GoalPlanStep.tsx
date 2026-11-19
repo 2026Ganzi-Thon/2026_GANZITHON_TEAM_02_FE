@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { applyGoalTitleEdit, applyWeeklyPlanEdit } from '../../api/goal';
 import { BottomActionArea } from '../../components/BottomActionArea';
 import { Button } from '../../components/Button';
 import { Header } from '../../components/Header';
@@ -62,7 +63,8 @@ export function GoalPlanStep({ draft, onChange, saving, onStart }: GoalPlanStepP
         title={draft.title}
         onClose={closeModal}
         onSave={(title) => {
-          onChange({ ...draft, title });
+          // 경우 1: 100일 목표를 바꾸면 설명·1~4주차도 시나리오대로 바뀐다
+          onChange(applyGoalTitleEdit(draft, title));
           closeModal();
         }}
       />
@@ -71,7 +73,8 @@ export function GoalPlanStep({ draft, onChange, saving, onStart }: GoalPlanStepP
         plans={draft.weeklyPlans}
         onClose={closeModal}
         onSave={(weeklyPlans) => {
-          onChange({ ...draft, weeklyPlans });
+          // 경우 2: 가장 앞에서 바뀐 주차부터 시나리오대로 바뀐다
+          onChange({ ...draft, weeklyPlans: applyWeeklyPlanEdit(draft.weeklyPlans, weeklyPlans) });
           closeModal();
         }}
       />

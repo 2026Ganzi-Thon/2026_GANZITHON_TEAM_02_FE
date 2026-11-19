@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getTodayCondition } from '../../api/condition';
-import { getDailyRecords, getGoal, saveDailyRecord, saveGoal } from '../../api/goal';
+import {
+  applyWeeklyPlanEdit,
+  currentWeek,
+  getBurdenPlans,
+  getDailyRecords,
+  getGoal,
+  saveDailyRecord,
+  saveGoal,
+} from '../../api/goal';
 import { getProfile } from '../../api/profile';
 import { Button } from '../../components/Button';
 import { PageTitle } from '../../components/PageTitle';
@@ -9,7 +17,7 @@ import { TextButton } from '../../components/TextButton';
 import { WeeklyPlanList } from '../../components/WeeklyPlanList';
 import { LoadingText } from '../../components/LoadingText';
 import { PATHS } from '../../routes/paths';
-import type { ConditionLog, DailyRecord, Goal, Profile } from '../../types';
+import type { ConditionLog, DailyRecord, Goal, Profile, WeeklyPlan } from '../../types';
 import { todayKey } from '../../utils/date';
 import { GoalEditModal } from '../goal/GoalEditModal';
 import { WeeklyPlanEditModal } from '../goal/WeeklyPlanEditModal';
@@ -73,7 +81,10 @@ export function HomeDashboard() {
   const todayRecord = records.find((record) => record.date === today) ?? null;
   const sheepDays = goal ? buildSheepDays(goal.startDate, records, today) : [];
   const status = todayRecord?.status ?? 'none';
-  const todayGoal = todayRecord?.todayGoal || goal?.title || '';
+  const dayNumber = goal ? getDayNumber(goal.startDate, today) : 1;
+  // 오늘 기록이 없으면 이번 주차의 할 일을 오늘의 목표로 보여준다 (하드코딩 시나리오)
+  const thisWeekTask = goal?.weeklyPlans.find((plan) => plan.week === currentWeek(dayNumber))?.task;
+  const todayGoal = todayRecord?.todayGoal || thisWeekTask || goal?.title || '';
   const showCondition = condition && condition.condition !== 'skipped' ? condition.condition : null;
 
   const saveRecord = async (patch: Partial<Pick<DailyRecord, 'status' | 'todayGoal' | 'feedback'>>) => {
@@ -99,6 +110,24 @@ export function HomeDashboard() {
 
   const handleDone = async () => {
     if (await saveRecord({ status: 'done' })) setModal('success');
+  };
+
+  const saveWeeklyPlans = async (weeklyPlans: WeeklyPlan[]) => {
+    if (!goal) return;
+    const saved = await saveGoal({ title: goal.title, description: goal.description, weeklyPlans });
+    setData((prev) => (prev ? { ...prev, goal: saved } : prev));
+  };
+
+  /**
+   * 성공 팝업을 닫을 때 '아직 부담돼요'를 골랐으면 주간 계획을 가볍게 바꾼다 (경우 3).
+   * 오늘 기록의 목표 문구는 그대로 두고, 내일부터 바뀐 계획이 오늘의 목표가 된다.
+   * 안내 팝업은 따로 없고, 팝업2의 '다음 목표의 분량을 정할 때 참고할게요.'로 대신한다.
+   */
+  const handleSuccessClose = async () => {
+    setModal(null);
+    const burdenPlans = getBurdenPlans();
+    const alreadyApplied = goal?.weeklyPlans.every((plan, index) => plan.task === burdenPlans[index]?.task);
+    if (todayRecord?.feedback === 'burden' && !alreadyApplied) await saveWeeklyPlans(burdenPlans);
   };
 
   const handleUndo = async () => {
@@ -130,7 +159,7 @@ export function HomeDashboard() {
           />
           <SectionDivider />
 
-          <SheepProgressSection dayNumber={getDayNumber(goal.startDate, today)} days={sheepDays} />
+          <SheepProgressSection dayNumber={dayNumber} days={sheepDays} />
           <SectionDivider />
 
           <section className="flex flex-col gap-2 px-10 py-8">
@@ -168,7 +197,7 @@ export function HomeDashboard() {
         days={sheepDays}
         feedback={todayRecord?.feedback}
         onFeedbackChange={(feedback) => saveRecord({ feedback })}
-        onClose={() => setModal(null)}
+        onClose={handleSuccessClose}
         onUndo={handleUndo}
       />
       {goal && (
@@ -177,8 +206,8 @@ export function HomeDashboard() {
           plans={goal.weeklyPlans}
           onClose={() => setModal(null)}
           onSave={async (weeklyPlans) => {
-            const saved = await saveGoal({ title: goal.title, description: goal.description, weeklyPlans });
-            setData((prev) => (prev ? { ...prev, goal: saved } : prev));
+            // 경우 2: 가장 앞에서 바뀐 주차부터 시나리오대로 바뀐다
+            await saveWeeklyPlans(applyWeeklyPlanEdit(goal.weeklyPlans, weeklyPlans));
             setModal(null);
           }}
         />

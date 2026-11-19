@@ -23,8 +23,8 @@ export type ConditionLog = {
 
 export type WeeklyPlan = {
   week: 1 | 2 | 3 | 4;
-  theme: string; // 습관 만들기
-  task: string; // 아침 9시 기상
+  theme: string; // 주차 제목 (볼드, goal_weeks.title) — 하드코딩 시나리오에 따라 바뀜
+  task: string; // 주차 할 일 (goal_weeks.description) 예) 아침 9시에 일어나기
 };
 
 export type Goal = {

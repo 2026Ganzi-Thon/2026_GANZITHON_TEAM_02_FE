@@ -21,7 +21,8 @@ const TONES: SheepTone[] = ['white', 'beige', 'pink'];
 export function MemoPage() {
   const [memos, setMemos] = useState<Memo[] | null>(null);
   const [newOpen, setNewOpen] = useState(false);
-  const [selected, setSelected] = useState<Memo | null>(null);
+  // 누른 메모와 그 카드의 양 색 (상세 팝업 양 색을 맞추기 위해 함께 기억)
+  const [selected, setSelected] = useState<{ memo: Memo; tone: SheepTone } | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -57,7 +58,12 @@ export function MemoPage() {
           <p className="py-10 text-caption text-text-sub">아직 남긴 메모가 없어요.</p>
         )}
         {memos?.map((memo, index) => (
-          <MemoCard key={memo.id} memo={memo} tone={TONES[index % TONES.length]} onOpen={setSelected} />
+          <MemoCard
+            key={memo.id}
+            memo={memo}
+            tone={TONES[index % TONES.length]}
+            onOpen={(opened) => setSelected({ memo: opened, tone: TONES[index % TONES.length] })}
+          />
         ))}
       </section>
 
@@ -79,7 +85,8 @@ export function MemoPage() {
         }
       />
       <MemoDetailModal
-        memo={selected}
+        memo={selected?.memo ?? null}
+        tone={selected?.tone ?? 'white'}
         busy={busy}
         onClose={() => setSelected(null)}
         onSave={(id, content) =>
