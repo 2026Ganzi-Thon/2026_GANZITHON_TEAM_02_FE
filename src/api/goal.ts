@@ -1,8 +1,22 @@
-import { mockGoal } from '../mocks/data';
+import {
+  BASE_PLAN,
+  BURDEN_PLANS,
+  applyGoalTitleEdit,
+  applyWeeklyPlanEdit,
+  currentWeek,
+} from '../mocks/scenario';
 import type { DailyRecord, Goal, WeeklyPlan } from '../types';
 import { kstTodayKey, todayKey } from '../utils/date';
 import { USE_SUPABASE, supabase, toAppError } from '../utils/supabase';
 import { createId, mockResponse } from './mockClient';
+
+// 화면은 mocks를 직접 import하지 않으므로 시나리오 함수는 api를 통해 쓴다
+export { applyGoalTitleEdit, applyWeeklyPlanEdit, currentWeek };
+
+/** 경우 3('아직 부담돼요')의 가벼운 주간 계획 */
+export function getBurdenPlans(): WeeklyPlan[] {
+  return BURDEN_PLANS;
+}
 
 /* ---------------------------------------------------------
  * Supabase 매핑
@@ -45,26 +59,11 @@ function goalFromRow(row: GoalRow): Goal {
   };
 }
 
-/**
- * 주차별 주제(볼드, goal_weeks.title)는 어떤 할 일에도 어울리는 고정 문구를 쓴다.
- * 사용자는 할 일(회색, goal_weeks.description)만 수정한다. (BE·PM 협의, 2026-11-19)
- */
-export const WEEK_THEMES: Record<WeeklyPlan['week'], string> = {
-  1: '시작하기',
-  2: '익숙해지기',
-  3: '늘려가기',
-  4: '이어가기',
-};
-
-function withFixedThemes(weeklyPlans: WeeklyPlan[]): WeeklyPlan[] {
-  return weeklyPlans.map((plan) => ({ ...plan, theme: WEEK_THEMES[plan.week] }));
-}
-
 function weeksToRows(goalId: number, weeklyPlans: WeeklyPlan[]) {
   return weeklyPlans.map((plan) => ({
     goal_id: goalId,
     week_number: plan.week,
-    title: WEEK_THEMES[plan.week],
+    title: plan.theme,
     description: plan.task,
   }));
 }
@@ -106,16 +105,20 @@ async function insertWeeks(goalId: number, weeklyPlans: WeeklyPlan[]) {
 }
 
 /**
- * 기존 목표의 주간 계획 수정: 주차별로 할 일(description)만 update.
+ * 기존 목표의 주간 계획 수정: 바뀐 주차만 주제(title)·할 일(description)을 update.
  * delete → insert는 insert 실패 시 계획이 통째로 사라질 수 있어 쓰지 않는다. (BE 요청)
  * 혹시 해당 주차 행이 없으면(예전 데이터 등) 그 주차만 insert.
  */
-async function updateWeeks(goalId: number, weeklyPlans: WeeklyPlan[]) {
+async function updateWeeks(goalId: number, current: WeeklyPlan[], weeklyPlans: WeeklyPlan[]) {
+  const changed = weeklyPlans.filter((plan) => {
+    const prev = current.find((p) => p.week === plan.week);
+    return !prev || prev.theme !== plan.theme || prev.task !== plan.task;
+  });
   const results = await Promise.all(
-    weeklyPlans.map((plan) =>
+    changed.map((plan) =>
       supabase
         .from('goal_weeks')
-        .update({ description: plan.task })
+        .update({ title: plan.theme, description: plan.task })
         .eq('goal_id', goalId)
         .eq('week_number', plan.week)
         .select('week_number'),
@@ -124,7 +127,7 @@ async function updateWeeks(goalId: number, weeklyPlans: WeeklyPlan[]) {
   const failed = results.find((result) => result.error);
   if (failed?.error) throw toAppError(failed.error, '주간 계획 저장에 실패했습니다.');
 
-  const missing = weeklyPlans.filter((_, index) => (results[index].data ?? []).length === 0);
+  const missing = changed.filter((_, index) => (results[index].data ?? []).length === 0);
   await insertWeeks(goalId, missing);
 }
 
@@ -178,12 +181,12 @@ export function getGoal(): Promise<Goal | null> {
 }
 
 /**
- * 2-1 → 2-2: 목표 문장으로 주간 계획 초안 요청 (지금은 고정 목업 반환)
- * TODO(BE/AI): Supabase 스키마에 AI 초안 생성 기능이 없어 Supabase 모드에서도 목업을 쓴다.
+ * 2-1 → 2-2: 목표 문장으로 주간 계획 초안 요청.
+ * AI 없이 하드코딩 시나리오의 기본 계획을 돌려준다 (Supabase 모드에서도 동일).
  */
 export function requestWeeklyPlanDraft(title: string): Promise<Pick<Goal, 'title' | 'description' | 'weeklyPlans'>> {
   return mockResponse(
-    { title, description: mockGoal.description, weeklyPlans: withFixedThemes(mockGoal.weeklyPlans) },
+    { title, ...BASE_PLAN },
     800,
   );
 }
@@ -239,7 +242,7 @@ export async function createGoal(input: GoalInput): Promise<Goal> {
     return created;
   }
 
-  goal = { id: createId('goal'), startDate: todayKey(), ...input, weeklyPlans: withFixedThemes(input.weeklyPlans) };
+  goal = { id: createId('goal'), startDate: todayKey(), ...input };
   saveGoalToStorage(goal);
   return mockResponse(goal);
 }
@@ -257,7 +260,7 @@ export async function saveGoal(input: GoalInput): Promise<Goal> {
       .eq('id', goalId);
     if (error) throw toAppError(error, '목표 저장에 실패했습니다.');
 
-    await updateWeeks(goalId, input.weeklyPlans);
+    await updateWeeks(goalId, current.weeklyPlans, input.weeklyPlans);
     const saved = await fetchActiveGoal();
     if (!saved) throw new Error('목표 저장에 실패했습니다.');
     return saved;
@@ -267,7 +270,6 @@ export async function saveGoal(input: GoalInput): Promise<Goal> {
     id: goal?.id ?? createId('goal'),
     startDate: goal?.startDate ?? todayKey(),
     ...input,
-    weeklyPlans: withFixedThemes(input.weeklyPlans),
   };
   saveGoalToStorage(goal);
   return mockResponse(goal);
