@@ -11,6 +11,33 @@ type ConditionRow = {
 
 const CONDITION_COLUMNS = 'date, condition, help_type';
 
+const LOGIN_CONDITION_KEY = 'ari_login_condition';
+
+type LoginConditionState = 'pending' | 'selected' | 'skipped';
+
+// 새 로그인 시작 시 호출
+export function resetLoginCondition(): void {
+  sessionStorage.setItem(LOGIN_CONDITION_KEY, 'pending');
+}
+
+function getLoginCondition(): LoginConditionState | null {
+  const value = sessionStorage.getItem(LOGIN_CONDITION_KEY);
+
+  if (
+    value === 'pending' ||
+    value === 'selected' ||
+    value === 'skipped'
+  ) {
+    return value;
+  }
+
+  return null;
+}
+
+function setLoginCondition(value: LoginConditionState): void {
+  sessionStorage.setItem(LOGIN_CONDITION_KEY, value);
+}
+
 function fromRow(row: ConditionRow): ConditionLog {
   return {
     date: row.date,
@@ -76,6 +103,13 @@ export async function getTodayCondition(): Promise<ConditionLog | null> {
     const row = await fetchTodayConditionRow();
     if (row) return fromRow(row);
     // '건너뛰기'는 DB에 저장하지 않으므로 이 기기에서 건너뛴 기록만 로컬에서 확인
+     const loginCondition = getLoginCondition();
+
+  // 이번 로그인에서 아직 선택하지 않았거나 건너뛰었다면 카드 숨김
+  if (loginCondition === 'pending' || loginCondition === 'skipped') {
+    return null;
+  }
+    
     const local = loadConditionFromStorage();
     return local.condition === 'skipped' ? { date: local.date, condition: 'skipped', helpType: null } : null;
   }
@@ -119,22 +153,62 @@ export async function saveTodayCondition(
       : 'hard';
   const apiCondition: 'OK' | 'HARD' = isGood ? 'OK' : 'HARD';
 
-  if (USE_SUPABASE && !isSkipped) {
+  
+if (USE_SUPABASE) {
+  // 건너뛰기: DB 기록은 유지하되 이번 로그인에서는 숨김
+  if (isSkipped) {
+    setLoginCondition('skipped');
+
+    return {
+      date: kstTodayKey(),
+      condition: 'skipped',
+      helpType: null,
+    };
+  }
+
+  // 오늘 기록이 있으면 수정, 없으면 새로 저장
+  const existing = await fetchTodayConditionRow();
+
+  let row: ConditionRow;
+
+  if (existing) {
     const { data, error } = await supabase
       .from('conditions')
-      .insert({ condition: apiCondition })
+      .update({
+        condition: apiCondition,
+        help_type: null,
+      })
+      .eq('date', kstTodayKey())
       .select(CONDITION_COLUMNS)
       .single<ConditionRow>();
+
     if (error) {
-      // 23505: 오늘 이미 기록함 (재선택 불가) → 기존 기록을 그대로 돌려준다
-      if (error.code === '23505') {
-        const existing = await fetchTodayConditionRow();
-        if (existing) return fromRow(existing);
-      }
+      throw toAppError(error, '컨디션 수정에 실패했습니다.');
+    }
+
+    row = data;
+  } else {
+    const { data, error } = await supabase
+      .from('conditions')
+      .insert({
+        condition: apiCondition,
+      })
+      .select(CONDITION_COLUMNS)
+      .single<ConditionRow>();
+
+    if (error) {
       throw toAppError(error, '컨디션 저장에 실패했습니다.');
     }
-    return fromRow(data);
+
+    row = data;
   }
+
+  // 저장에 성공했을 때만 선택 완료 처리
+  setLoginCondition('selected');
+
+  return fromRow(row);
+}
+
 
   conditionState = {
     date: todayKey(),

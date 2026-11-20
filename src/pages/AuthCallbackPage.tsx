@@ -62,14 +62,19 @@ export default function AuthCallbackPage() {
         });
 
         // 4. GET /api/auth/me 확인하여 분기
-        const authMe = await getAuthMe();
+        //const authMe = await getAuthMe();
+        await getAuthMe();
         if (!isMounted) return;
 
-        if (authMe.next_step === 'INITIAL_SETUP' || !authMe.initial_setup_completed) {
-          navigate(PATHS.onboardingSetup, { replace: true });
-        } else {
-          navigate(PATHS.home, { replace: true });
-        }
+        // 재로그인시 홈으로 이동
+        // if (authMe.next_step === 'INITIAL_SETUP' || !authMe.initial_setup_completed) {
+        //   navigate(PATHS.onboardingSetup, { replace: true });
+        // } else {
+        //   navigate(PATHS.home, { replace: true });
+        // }
+
+        // 재로그인시 온보딩으로 이동
+        navigate(PATHS.onboardingSetup, {replace:true})
       } catch (err) {
         console.error('카카오 OAuth 콜백 처리 중 오류:', err);
         if (isMounted) {
