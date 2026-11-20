@@ -28,14 +28,14 @@ export function OrganizationCard({
           </dd>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-start gap-2.5">
           <dt className={dtClassName}>운영</dt>
           <dd className="min-w-0 flex-1 break-words">
             {organization.hours?.trim() || '-'}
           </dd>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-start gap-2.5">
           <dt className={dtClassName}>연락처</dt>
           <dd className="min-w-0 flex-1">
             {phone ? (

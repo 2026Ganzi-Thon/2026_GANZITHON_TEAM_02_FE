@@ -26,6 +26,9 @@ export async function signInWithKakao(options?: {
       options: {
         redirectTo: `${window.location.origin}${PATHS.authCallback}`,
         scopes: 'profile_nickname profile_image',
+        queryParams: {
+          prompt: 'login',
+        },
       },
     });
     if (error) throw error;
@@ -113,9 +116,11 @@ export async function getAuthMe(): Promise<AuthMeData> {
 export async function signOut(): Promise<void> {
   if (isSupabaseConfigured) {
     try {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
     } catch (e) {
       console.warn('Supabase signOut error:', e);
+      throw e;
     }
   }
 
