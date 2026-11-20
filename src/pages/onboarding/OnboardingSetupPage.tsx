@@ -52,7 +52,7 @@ export function OnboardingSetupPage() {
       }
 
       try {
-        const profile = await getProfile();
+        await getProfile();
 
         if (!active) return;
 
@@ -63,15 +63,10 @@ export function OnboardingSetupPage() {
         // }
 
         // // 초기 설정 화면에서는 이전 입력값이 뜨지 않도록 빈 값으로 시작 (placeholder 노출)
-        // setNickname('');
-        // setRegion('');
-        // setSelectedInterests([]);
+        setNickname('');
+        setRegion('');
+        setSelectedInterests([]);
 
-        // 기존 사용자도 홈으로 이동하지 않고 온보딩 진행
-        // 기존 프로필 정보가 있으면 입력값으로 불러오기
-        setNickname(profile.nickname ?? '');
-        setRegion(profile.region ?? '');
-        setSelectedInterests(profile.interests ?? []);
       } catch {
         if (active) {
           setError('프로필 정보를 불러오지 못했어요.');
