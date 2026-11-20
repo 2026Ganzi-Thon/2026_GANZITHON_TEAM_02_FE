@@ -79,9 +79,9 @@ export function RequireSetup({ children }: { children: ReactNode }) {
     return <Navigate to={PATHS.login} replace />;
   }
 
-  // if (status === 'authenticated') {
-  //   return <Navigate to={PATHS.home} replace />;
-  // }
+  if (status === 'authenticated') {
+    return <Navigate to={PATHS.home} replace />;
+  }
 
   return <>{children}</>;
 }

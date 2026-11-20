@@ -43,20 +43,15 @@ export default function LoginPage() {
         }
 
         // 로그인된 토큰이 있으면 /api/auth/me 확인
-        //const authMe = await getAuthMe();
-        await getAuthMe();
+        const authMe = await getAuthMe();
         if (!active) return;
 
-        // 재로그인시 홈화면으로 이동
-        // if (authMe.next_step === 'INITIAL_SETUP') {
-        //   navigate(PATHS.onboardingSetup, { replace: true });
-        // } else {
-        //   navigate(PATHS.home, { replace: true });
-        //   //navigate(PATHS.onboardingSetup, { replace: true });
-        // }
-
-        // 재로그인시 온보딩으로 이동
-        navigate(PATHS.onboardingSetup, {replace: true})
+        if (authMe.next_step === 'INITIAL_SETUP') {
+          navigate(PATHS.onboardingSetup, { replace: true });
+        } else {
+          navigate(PATHS.home, { replace: true });
+          //navigate(PATHS.onboardingSetup, { replace: true });
+        }
       } catch (e) {
         console.error('인증 확인 중 오류:', e);
         if (active) setLoading(false);

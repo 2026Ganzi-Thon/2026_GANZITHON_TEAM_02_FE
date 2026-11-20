@@ -10,7 +10,6 @@ import { PATHS } from '../routes/paths';
 import { USE_SUPABASE, isSupabaseConfigured, supabase, toAppError } from '../utils/supabase';
 import { mockResponse } from './mockClient';
 import { DEFAULT_REGION, getProfile, updateProfile } from './profile';
-import { resetLoginCondition } from './condition';
 
 /**
  * 카카오 OAuth + Supabase Auth 로그인 함수.
@@ -22,14 +21,13 @@ export async function signInWithKakao(options?: {
   forceMock?: boolean;
 }): Promise<AuthMeData | void> {
   if (USE_SUPABASE && !options?.forceMock) {
-    resetLoginCondition();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'kakao',
       options: {
         redirectTo: `${window.location.origin}${PATHS.authCallback}`,
         scopes: 'profile_nickname profile_image',
         queryParams: {
-          prompt: 'select_account',
+          prompt: 'login',
         },
       },
     });

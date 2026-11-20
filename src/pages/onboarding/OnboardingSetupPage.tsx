@@ -38,7 +38,7 @@ export function OnboardingSetupPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-  
+
   // 1. 기존 프로필 및 인증 확인
   useEffect(() => {
     let active = true;
@@ -57,21 +57,15 @@ export function OnboardingSetupPage() {
         if (!active) return;
 
         // 이미 초기 설정이 완료된 사용자면 홈으로 직행
-        // if (profile.initial_setup_completed) {
-        //   navigate(PATHS.home, { replace: true });
-        //   return;
-        // }
+        if (profile.initial_setup_completed) {
+          navigate(PATHS.home, { replace: true });
+          return;
+        }
 
-        // // 초기 설정 화면에서는 이전 입력값이 뜨지 않도록 빈 값으로 시작 (placeholder 노출)
-        // setNickname('');
-        // setRegion('');
-        // setSelectedInterests([]);
-
-        // 기존 사용자도 홈으로 이동하지 않고 온보딩 진행
-        // 기존 프로필 정보가 있으면 입력값으로 불러오기
-        setNickname(profile.nickname ?? '');
-        setRegion(profile.region ?? '');
-        setSelectedInterests(profile.interests ?? []);
+        // 초기 설정 화면에서는 이전 입력값이 뜨지 않도록 빈 값으로 시작 (placeholder 노출)
+        setNickname('');
+        setRegion('');
+        setSelectedInterests([]);
       } catch {
         if (active) {
           setError('프로필 정보를 불러오지 못했어요.');
